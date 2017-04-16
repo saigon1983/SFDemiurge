@@ -18,6 +18,9 @@ class SceneManager(QGraphicsView):
 		self.setAlignment(Qt.AlignLeft | Qt.AlignTop)          					# Точка (0, 0) сцены всегда отображается в левом верхнем углу
 		self.setTransformationAnchor(QGraphicsView.NoAnchor)			# Точка (0, 0) сцены всегда отображается в левом верхнем углу
 		self.scaleChange()     															# Устанавливаем двойной зум по умолчанию
+	def refresh(self):
+		# Метод обновления виджета
+		self.update()
 	def scaleChange(self):
 		# Метод смены масштабирования
 		delta = [0.25, 0.5, 1, 2, 4][self.PROXY.SCALE] 						# Выбираем масштаб в зависимости от положения ползунка масштабирования
