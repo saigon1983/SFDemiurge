@@ -23,7 +23,8 @@ class TilesetManager(QTabWidget):
 		self.mainWindow	= main				# Ссылка на главное окно
 		super().__init__(self.mainWindow)	# Инициализируем суперкласс
 		self.setup()						# Запускаем метод настройки виджета
-		self.setTileset()
+		self.setTileset()					# Устанавливаем тайлсет по умолчанию
+		self.views[0].setActiveTile()		# Делаем активный первый тайл первого вида
 	def setup(self):
 		# Метод настройки виджета
 		self.setTabPosition(1)		# Положение закладок - снизу

@@ -113,7 +113,7 @@ class ProjectSceneElement(ProjectRootElement):
         '''
         Конструктор принимает два аргумента, т.к. тег создается автоматически
         '''
-        super().__init__(name, 'Group element', parent) # Инициализируем суперкласс
+        super().__init__(name, 'Scene element', parent) # Инициализируем суперкласс
         self.typeID = ProjectRootElement.ScenesCounter  # Порядковый номер по типу элемента
         self.typeIDstr  = 'AR'+str(self.typeID).zfill(4)# Строковое представление ID типа
         ProjectRootElement.ScenesCounter += 1           # Увеличиваем счетчик элементов типа на 1

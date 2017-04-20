@@ -103,5 +103,21 @@ class Project:
 	def structureTemplate(cls, name):
 		# Метод создания шаблонной структуры проекта для создания проекта "с нуля"
 		tree = ProjectRootElement(name)
-		tree.addScene('World Map')
+		#tree.addScene('World Map')
+		g1 = ProjectGroupElement('Group 1', tree)
+		g2 = ProjectGroupElement('Group 2', tree)
+		g3 = ProjectGroupElement('Group 3', tree)
+		s1 = ProjectSceneElement('World Map 1', tree)
+		s2 = ProjectSceneElement('World Map 2', tree)
+		s3 = ProjectSceneElement('World Map 3', tree)
+		s4 = ProjectSceneElement('World Map 4', tree)
+		s5 = ProjectSceneElement('World Map 5', tree)
+		tree.addGroup(g1)
+		g1.addGroup(g3)
+		#g1.addScene(s1)
+		#g3.addScene(s2)
+		#g3.addScene(s3)
+		tree.addGroup(g2)
+		#g2.addScene(s4)
+		#tree.addScene(s5)
 		return tree

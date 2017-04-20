@@ -8,13 +8,14 @@ class SceneManager(QGraphicsView):
 	def __init__(self, main):
 		self.mainWindow = main				# Ссылка на главное окно
 		super().__init__(self.mainWindow)	# Инициализируем суперкласс
-		self.setup()									# Запускаем настройку виджета
+		self.setup()						# Запускаем настройку виджета
 	def setup(self):
-		self.basicTilseSize = int(self.mainWindow.CONFIG['EDITOR OPTIONS']['Tilesize'])	# Базовый размер тайла
+		# Метод настройки виджета
+		self.basicTilseSize = int(self.mainWindow.CONFIG['EDITOR OPTIONS']['Tilesize'])	    # Базовый размер тайла
 		self.setMinimumSize((self.basicTilseSize + 1) * 20, self.basicTilseSize * 20 + 5)	# Минимальный размер
-		self.PROXY = self.mainWindow.PROXY										# Ссылка на прокси-буфер
-		self.setMouseTracking(True)													# Виджет отслеживает положение мыши
-		self.setDragMode(QGraphicsView.RubberBandDrag) 					# Вариант реакции на нажатие мыши
+		self.PROXY = self.mainWindow.PROXY										            # Ссылка на прокси-буфер
+		self.setMouseTracking(True)													        # Виджет отслеживает положение мыши
+		self.setDragMode(QGraphicsView.RubberBandDrag) 					        # Вариант реакции на нажатие мыши
 		self.setAlignment(Qt.AlignLeft | Qt.AlignTop)          					# Точка (0, 0) сцены всегда отображается в левом верхнем углу
 		self.setTransformationAnchor(QGraphicsView.NoAnchor)			# Точка (0, 0) сцены всегда отображается в левом верхнем углу
 		self.scaleChange()     															# Устанавливаем двойной зум по умолчанию
