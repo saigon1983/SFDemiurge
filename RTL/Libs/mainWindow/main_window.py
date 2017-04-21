@@ -29,7 +29,7 @@ class MainGui(QMainWindow):
         self.setupLayouts()					# Настраиваем компоновщики
         self.initWidgets()						# Инициализируем виджеты
         self.placeWidgets()					# Устанавливаем виджеты в компоновщики
-    #========== Методы настройки экземпляра ==========
+#========== Методы настройки экземпляра ==========
     def setupSelf(self):
         # Метод настройки виджета
         self.setCentralWidget(QFrame())	# Задаем центральный виджет
@@ -74,7 +74,7 @@ class MainGui(QMainWindow):
         self.mainHLayout.addWidget(self.SCENE_MANAGER)
         self.tilesetLayout.addWidget(self.TILE_VIEWER)
         self.tilesetLayout.addWidget(self.TILESET_SELECTOR)
-    #========== Методы управления текущим проектом ==========
+#========== Методы управления текущим проектом ==========
     def projectSave(self):
         # Метод сохранения проекта
         self.PROJECT.save() # Сохраняем проект
@@ -83,16 +83,17 @@ class MainGui(QMainWindow):
     def projectLoad(self):
         # Метод загрузки проекта из файла
         projectPath = os.path.dirname(QFileDialog.getOpenFileName(self, 'Выберите проект', './Projects', filter = 'Файлы проекта (*.data)'))
-        self.PROJECT = Project.fromFile(self, projectPath)
-        self.PROJECT_MANAGER.initProject()
+        self.PROJECT = Project.fromFile(self, projectPath)  # Запускаем окно загрузки проекта
+        self.PROJECT_MANAGER.initProject()                  # Устанавливаем созданный проект текущим
+        self.setHeader()                                    # Обновляем заголовок окна
         print('Project loaded!')
     def projectCreate(self):
         # Метод создания нового проекта
-        newProject = Project.fromStratch(self)
-        self.PROJECT = newProject
-        self.PROJECT_MANAGER.initProject()
+        self.PROJECT = Project.fromStratch(self)    # Создаем новый проект посредством менеджера создания
+        self.PROJECT_MANAGER.initProject()          # Устанавливаем созданный проект текущим
+        self.setHeader()                            # Обновляем заголовок окна
         print('Project created!')
-    #========== Методы для начала работы ==========
+#========== Методы для начала работы ==========
     def getRecentProjects(self):
         # Метод возвращает список последних запускаемых проектов
         self.recentProjects = []
@@ -108,7 +109,7 @@ class MainGui(QMainWindow):
                 self.PROJECT = Project.fromFile(self, self.recentProjects[-1])
             else:
                 self.PROJECT = Project.fromStratch(self)
-    #========== Методы завершения работы приложения ==========
+#========== Методы завершения работы приложения ==========
     def closeEvent(self, event):
         # Метод перехвата события выхода из приложения. Проверяет сохранность всех данных и закрывает редактор
         if self.couldExit():
