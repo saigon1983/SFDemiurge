@@ -2,6 +2,7 @@
 В этом модуле описываются элементы дерева структуры проекта - объекты подклассы QStandardItem, необходимые для отражения
 структуры проекта в виде дерева в виджете PROJECT_MANAGER
 '''
+from RTL.Libs.sceneManager.scene_model import SceneModel
 from RTL.Libs.projectManager.project_element_menu import *
 from RTL.Libs.projectClass.project_structure import *
 
@@ -96,6 +97,7 @@ class SceneElement(RootElement):
         super().__init__(selectorWindow, element, root) # Вызываем конструктор суперкласса
         self.root.scenesCounter += 1                    # Увеличиваем счетчик сцен на 1
         self.root.usedSceneNames.append(self.name)      # Помещаем имя сцены в список уже использованных имен сцен
+        self.sceneModel = SceneModel(self.mainWindow, self.element, self.element.sceneData)
     def setPopupMenu(self):
         # Перегружаем метод вызова контекстного меню
         self.popupMenu = PMSceneMenu(self)

@@ -5,11 +5,11 @@ from configobj import ConfigObj
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 # Считываем базовый размер тайла
-TILESIZE = int(ConfigObj("config.ini")['EDITOR OPTIONS']['TILESIZE'])
+TILESIZE = int(ConfigObj("config.ini")['EDITOR OPTIONS']['Tilesize'])
 
 class SceneModel(QGraphicsScene):
     PASSABILITY = ('Empty','Solid','Hover')	# Список возможных значений проходимости клетки
-    def __init__(self, main, sceneData):
+    def __init__(self, main, node, sceneData):
         '''
         Конструктор класса принимает два аргумента:
             main        - ссылка на главное окно
@@ -17,8 +17,9 @@ class SceneModel(QGraphicsScene):
         '''
         self.mainWindow = main      # Ссылка на главное окно
         self.PROXY = main.PROXY     # Ссылка на прокси-буфер
+        self.setupNode(node)        # Привязываем модель к узлу структуры
         self.setupData(sceneData)   # Устанавливаем переданные данные
-        super().__init__(self, 0, 0, float(TILESIZE * self.tiles_in_row), float(TILESIZE * self.tiles_in_col)) # Конструктор суперкласса
+        super().__init__(0, 0, float(TILESIZE * self.tiles_in_row), float(TILESIZE * self.tiles_in_col)) # Конструктор суперкласса
         self.placeTiles(self.tilelist)
         self.setTriggers(self.triggers)
         self.setPassability(self.walkMap)
@@ -26,6 +27,10 @@ class SceneModel(QGraphicsScene):
     def width(self):		return int(super().width())
     def height(self):		return int(super().height())
 # ==========Методы-установщики==========
+    def setupNode(self, node):
+        # Метод связывания модели с узлом структуры
+        self.node = node            # Сохраняем ссылку на узел
+        self.node.bindScene(self)   # Запускаем метод связывания узла
     def setupData(self, sceneData):
         # Метод установки атрибутов сцены на основе переданных данных sceneData
         self.data = sceneData

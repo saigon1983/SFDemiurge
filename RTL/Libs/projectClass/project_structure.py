@@ -109,7 +109,7 @@ class ProjectSceneElement(ProjectRootElement):
     # Отменяем использование добавляющих методов
     addGroup = property(doc='(!) Disallowed inherited')
     addScene = property(doc='(!) Disallowed inherited')
-    def __init__(self, name, parent, sceneData = {}, sceneObject = None):
+    def __init__(self, name, parent, sceneData = {}):
         '''
         Конструктор принимает два аргумента, т.к. тег создается автоматически
         '''
@@ -117,9 +117,9 @@ class ProjectSceneElement(ProjectRootElement):
         self.typeID = ProjectRootElement.ScenesCounter  # Порядковый номер по типу элемента
         self.typeIDstr  = 'AR'+str(self.typeID).zfill(4)# Строковое представление ID типа
         ProjectRootElement.ScenesCounter += 1           # Увеличиваем счетчик элементов типа на 1
-        self.setupScene(sceneData, sceneObject)         # Запускаем настройку сцены
+        self.setupScene(sceneData)                      # Запускаем настройку сцены
         self.parent.SCENES.append(self)                 # Добавляем экземпляр в список сцен родителя
-    def setupScene(self, someSceneData, someSceneObject):
+    def setupScene(self, someSceneData):
         # Создаем данные о сцене, либо принимая те, что передаются в аргументе someSceneData, либо
         # устанавливая значения по умолчанию
         self.sceneData = {}
@@ -132,4 +132,6 @@ class ProjectSceneElement(ProjectRootElement):
         self.sceneData['MainTileset']   = someSceneData.setdefault('MainTileset',   '')
         # Корректируем имя сцены
         self.name = self.sceneData['Name']
-        # Привязываем соответствующий элементу объект сцены. По умолчанию отсутствует
+    def bindScene(self, sceneModel):
+        # Метод привязки сцены к текущему элементу структуры
+        self.sceneModel = sceneModel
