@@ -23,7 +23,7 @@ class Dialog_NewGroup(QDialog):
     def setFields(self):
         # Метод настройки полей виджета. По умолчанию именем новой группы является следующий ее порядковый номер
         self.groupName = QLineEdit()                            # Создаем поле ввода названия группы
-        self.groupName.setText('Group GR' + str(self.callingItem.groupsCounter + 1).zfill(4))
+        self.groupName.setText('Group GR' + str(self.callingItem.root.groupsCounter + 1).zfill(4))
         self.groupName.textChanged.connect(self.validateInputs) # Соединяем сигнал изменения текста с методом валидации
     def setLayouts(self):
         # Метод размещения элементов по виджету
@@ -34,7 +34,7 @@ class Dialog_NewGroup(QDialog):
     def validateInputs(self):
         # Метод проверки валидации. Текстовое поле должно содержать текст и этот текст не должен ранее использоваться
         # для названия группы
-        if self.groupName.text() and self.groupName.text() not in self.callingItem.usedGroupNames:
+        if self.groupName.text() and self.groupName.text() not in self.callingItem.root.usedGroupNames:
             self.buttons.buttons()[0].setDisabled(False)
         else:
             self.buttons.buttons()[0].setDisabled(True)
@@ -86,7 +86,7 @@ class Dialog_NewScene(QDialog):
         # Создание сцены возможно только если: ширина и высота равны 5 или более (до 999), имя сцены не пустое и такого
         # имени еще нет в списке имен сцен
         if int(self.sceneWidth.text()) >= 5 and int(self.sceneHeight.text()) >= 5 and \
-            self.sceneName.text() and self.sceneName.text() not in self.callingItem.usedSceneNames:
+            self.sceneName.text() and self.sceneName.text() not in self.callingItem.root.usedSceneNames:
             self.buttons.buttons()[0].setDisabled(False)
         else:
             self.buttons.buttons()[0].setDisabled(True)
@@ -96,7 +96,7 @@ class Dialog_NewScene(QDialog):
     def setNameField(self):
         # Метод настройки поля ввода названия сцены. По умолчанию предлагается название соответствующее порядковому номеру
         self.sceneName = QLineEdit()                                # Создаем поле ввода названия сцены
-        self.sceneName.setText('Scene AR' + str(self.callingItem.scenesCounter + 1).zfill(4))
+        self.sceneName.setText('Scene AR' + str(self.callingItem.root.scenesCounter + 1).zfill(4))
         self.sceneName.textChanged.connect(self.validateInputs)     # Соединяем сигнал изменения текста с методом валидации
         self.sceneName.setAlignment(Qt.AlignVCenter | Qt.AlignRight)# Выравниваем текст по вертикали и правому краю
     def setSizeFields(self):
