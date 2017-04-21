@@ -22,7 +22,7 @@ class TilesetSelector(QComboBox):
 	def initData(self):
 		# Метод инициализации данных о тайлсетах
 		self.tilesetData = TilesetData()
-		for name in self.tilesetData.DATA:	self.addItem(name)	# Загуржаем список оступных тайлсетов в виджет
+		for name in self.tilesetData.DATA:	self.addItem(name)	# Загуржаем список доступных тайлсетов в виджет
 	def setTileset(self):
 		# Метод установки активного тайлсета
 		selectedTilesetData = self.tilesetData.DATA[self.tilesetData.NAMES[self.currentIndex()]]

@@ -2,7 +2,6 @@
 Модуль с описанием виджета выбора (и создания) сцен. Представляет из себя виджет QTreeView, настроенный на работу с
 структурой проекта. Позволяет создавать новые сцены, распределять их по группам и открывать их для редактирования
 '''
-from PyQt4.QtCore import *
 from RTL.Libs.projectManager.project_tree_elements import *
 
 class ProjectManager(QTreeView):
@@ -35,7 +34,7 @@ class ProjectManager(QTreeView):
         if self.selectedIndexes():
             item = self.selectedIndexes()[0]            # Берем первый индекс из списка выделенных элементов
             element = item.model().itemFromIndex(item)  # Получаем активный элемент
-            element.popupMenu(position)                 # Вызываем меню этого элемента
+            element.callPopupMenu(position)                 # Вызываем меню этого элемента
     def doubleClick(self, index):
         # Метод реакции на войной щелчок мышью. Для элементов сцены - открывает сцену в редакторе, для остальных -
         # сворачивает/разворачивает ветку

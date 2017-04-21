@@ -13,16 +13,16 @@ class TilesetData:
 		# Метод настройки экземпляра
 		self.LIST = ConfigObj(os.path.join(TilesetData.PATH, 'tileset_list.ini'))	# Объект с информацией из файла
 		self.DATA = OrderedDict()	# Отформатированный для работы с виджетамми словарь с текущими тайлсетами
-		self.NAMES 	= 	[]				# Список уже использованных названий тайлсетов
-		self.FILES		=	[]				# Список уже использованных названий файлов тайлсетов
-		self.count = 0					# Счетчик количества использовуемых тайлсетов
-		for tileset in self.LIST:		# Запускаем обработку данных
+		self.NAMES 	= 	[]			# Список уже использованных названий тайлсетов
+		self.FILES		=	[]		# Список уже использованных названий файлов тайлсетов
+		self.count = 0				# Счетчик количества использовуемых тайлсетов
+		for tileset in self.LIST:	# Запускаем обработку данных
 			# Увеличиваем счетчик на 1
 			self.count += 1
 			# Записываем данные в форматированный список
 			self.DATA[self.LIST[tileset]['Name']] = {'File': os.path.join(TilesetData.PATH, self.LIST[tileset]['File']),
-																	   'Line': self.LIST[tileset]['Line'],
-																	   'Type': self.LIST[tileset]['Type']}
+													 'Line': self.LIST[tileset]['Line'],
+													 'Type': self.LIST[tileset]['Type']}
 			# Добавляем название тайлсета в список используемых названий
 			self.NAMES.append(self.LIST[tileset]['Name'])
 			# Добавляем название файла тайлсета в список используемых названий файлов

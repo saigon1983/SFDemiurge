@@ -2,7 +2,8 @@
 В этом модуле описываются элементы дерева структуры проекта - объекты подклассы QStandardItem, необходимые для отражения
 структуры проекта в виде дерева в виджете PROJECT_MANAGER
 '''
-from PyQt4.QtGui import *
+from RTL.Libs.projectManager.project_element_menu import *
+from RTL.Libs.projectClass.project_structure import *
 
 class RootElement(QStandardItem):
     # Класс корня структуры. Он же предок для всех элементов-узлов структуры
@@ -51,10 +52,21 @@ class RootElement(QStandardItem):
         self.setIcon(QIcon(QPixmap(r"RTL\Images\Icons\{}Icon.png".format(self.tag.split()[0].lower()))))
     def setPopupMenu(self):
         # Метод настройки всплывающего меню
-        pass
-    def popupMenu(self, position):
+        self.popupMenu = PMRootMenu(self)
+    def callPopupMenu(self, position):
         # Метод вызова всплывающего меню
-        pass
+        self.popupMenu.move(self.selectorWindow.viewport().mapToGlobal(position))
+        self.popupMenu.show()
+    def addNewGroup(self, groupName):
+        # Метод добавления новой группы
+        newGroupStructure   = ProjectGroupElement(groupName, self.element)          # Новый элемент структуры
+        newGroupElement     = GroupElement(self.selectorWindow, newGroupStructure)  # Новый элемент дерева
+        self.insertRow(len(self.listOfGroups), newGroupElement)                     # Добавляем элемент в отображение
+    def addNewScene(self, sceneData):
+        # Метод добавления новой сцены в проект
+        newSceneSctructure  = ProjectSceneElement(sceneData['Name'], self.element, sceneData)   # Новый элемент структуры
+        newSceneElement     = SceneElement(self.selectorWindow, newSceneSctructure)             # Новый элемент дерева
+        self.insertRow(self.rowCount(), newSceneElement)	                                    # Добавляем элемент в отображение
 
 class GroupElement(RootElement):
     '''
@@ -66,7 +78,7 @@ class GroupElement(RootElement):
         RootElement.usedGroupNames.append(self.name)# Помещаем имя группы в список уже использованных имен групп
     def setPopupMenu(self):
         # Перегружаем метод вызова контекстного меню
-        pass
+        self.popupMenu = PMGroupMenu(self)
 
 class SceneElement(RootElement):
     '''
@@ -79,7 +91,7 @@ class SceneElement(RootElement):
         RootElement.usedSceneNames.append(self.name)# Помещаем имя сцены в список уже использованных имен сцен
     def setPopupMenu(self):
         # Перегружаем метод вызова контекстного меню
-        pass
+        self.popupMenu = PMSceneMenu(self)
     def setSceneToEditor(self):
         # Метод загрузки сцены в редактор
         pass

@@ -118,7 +118,7 @@ class ProjectSceneElement(ProjectRootElement):
         self.typeIDstr  = 'AR'+str(self.typeID).zfill(4)# Строковое представление ID типа
         ProjectRootElement.ScenesCounter += 1           # Увеличиваем счетчик элементов типа на 1
         self.setupScene(sceneData, sceneObject)         # Запускаем настройку сцены
-        self.parent.GROUPS.append(self)                 # Добавляем экземпляр в список сцен родителя
+        self.parent.SCENES.append(self)                 # Добавляем экземпляр в список сцен родителя
     def setupScene(self, someSceneData, someSceneObject):
         # Создаем данные о сцене, либо принимая те, что передаются в аргументе someSceneData, либо
         # устанавливая значения по умолчанию
