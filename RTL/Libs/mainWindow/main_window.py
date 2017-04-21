@@ -23,12 +23,12 @@ class MainGui(QMainWindow):
                           ссылку на последний запущенный проект, либо запускает создание нового проекта
         '''
         QMainWindow.__init__(self)		# Инициализируем суперкласс
-        self.setupSelf()							# Настраиваем виджет
-        self.configSelf(config, project)	# Настраиваем атрибуты
-        self.setHeader()						# Пишем корректный заголовок
-        self.setupLayouts()					# Настраиваем компоновщики
-        self.initWidgets()						# Инициализируем виджеты
-        self.placeWidgets()					# Устанавливаем виджеты в компоновщики
+        self.setupSelf()				# Настраиваем виджет
+        self.configSelf(config, project)# Настраиваем атрибуты
+        self.setHeader()				# Пишем корректный заголовок
+        self.setupLayouts()				# Настраиваем компоновщики
+        self.initWidgets()				# Инициализируем виджеты
+        self.placeWidgets()				# Устанавливаем виджеты в компоновщики
 #========== Методы настройки экземпляра ==========
     def setupSelf(self):
         # Метод настройки виджета
@@ -38,8 +38,8 @@ class MainGui(QMainWindow):
         #self.showFullScreen()# Запускает приложение в полноэкранном режиме
     def configSelf(self, config, project):
         # Метод настройки атрибутов экземпляра
-        self.CONFIG 	= config					# Ссылка на файл конфигураций
-        self.setupProject(project)				# Загрузка/построение проекта
+        self.CONFIG 	= config		# Ссылка на файл конфигураций
+        self.setupProject(project)		# Загрузка/построение проекта
         self.PROXY 	= ProxyBuffer(self)	# Ссылка на прокси-буфер
     def setHeader(self):
         # Метод настройки заголовка окна
@@ -54,9 +54,9 @@ class MainGui(QMainWindow):
         else: return '*'
     def setupLayouts(self):
         # Метод настройки менеджера размещения
-        self.mainHLayout = QHBoxLayout(self.centralWidget())	# Основной, горизонтальный (на 2 элемента)
-        self.mainVLayout = QVBoxLayout()                    				# Левый, вертикальный
-        self.tilesetLayout = QHBoxLayout()									# Компоновщик виджетов работы с тайлсетом
+        self.mainHLayout = QHBoxLayout(self.centralWidget())# Основной, горизонтальный (на 2 элемента)
+        self.mainVLayout = QVBoxLayout()                    # Левый, вертикальный
+        self.tilesetLayout = QHBoxLayout()					# Компоновщик виджетов работы с тайлсетом
         self.mainVLayout.addLayout(self.tilesetLayout)
         self.mainHLayout.addLayout(self.mainVLayout)
     def initWidgets(self):
@@ -89,9 +89,9 @@ class MainGui(QMainWindow):
         print('Project loaded!')
     def projectCreate(self):
         # Метод создания нового проекта
-        self.PROJECT = Project.fromStratch(self)    # Создаем новый проект посредством менеджера создания
-        self.PROJECT_MANAGER.initProject()          # Устанавливаем созданный проект текущим
-        self.setHeader()                            # Обновляем заголовок окна
+        self.PROJECT = Project.fromStratch(self)# Создаем новый проект посредством менеджера создания
+        self.PROJECT_MANAGER.initProject()      # Устанавливаем созданный проект текущим
+        self.setHeader()                        # Обновляем заголовок окна
         print('Project created!')
 #========== Методы для начала работы ==========
     def getRecentProjects(self):
@@ -103,7 +103,7 @@ class MainGui(QMainWindow):
     def setupProject(self, project):
         # Метод установки текущего проекта
         if project: self.PROJECT = project	# Если проект явно передан, просто устанавливаем его
-        else:											# Если проект не передан, запускаем процедуру выбора проекта
+        else:								# Если проект не передан, запускаем процедуру выбора проекта
             self.getRecentProjects()
             if self.recentProjects:
                 self.PROJECT = Project.fromFile(self, self.recentProjects[-1])
