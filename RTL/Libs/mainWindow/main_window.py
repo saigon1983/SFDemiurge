@@ -77,7 +77,8 @@ class MainGui(QMainWindow):
     #========== Методы управления текущим проектом ==========
     def projectSave(self):
         # Метод сохранения проекта
-        self.PROJECT.save()
+        self.PROJECT.save() # Сохраняем проект
+        self.setHeader()    # Меняем заголовок окна (убираем зведочку из названия)
         print('Project saved!')
     def projectLoad(self):
         # Метод загрузки проекта из файла

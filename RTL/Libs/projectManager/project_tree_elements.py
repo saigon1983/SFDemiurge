@@ -67,11 +67,13 @@ class RootElement(QStandardItem):
         newGroupStructure   = ProjectGroupElement(groupName, self.element)                      # Новый элемент структуры
         newGroupElement     = GroupElement(self.selectorWindow, newGroupStructure, self.root)   # Новый элемент дерева
         self.insertRow(len(self.listOfGroups), newGroupElement)                                 # Добавляем элемент в отображение
+        self.mainWindow.PROJECT.changed()                                                       # Сообщаем проекту, что он изменен
     def addNewScene(self, sceneData):
         # Метод добавления новой сцены в проект
         newSceneSctructure  = ProjectSceneElement(sceneData['Name'], self.element, sceneData)   # Новый элемент структуры
         newSceneElement     = SceneElement(self.selectorWindow, newSceneSctructure, self.root)  # Новый элемент дерева
         self.insertRow(self.rowCount(), newSceneElement)	                                    # Добавляем элемент в отображение
+        self.mainWindow.PROJECT.changed()                                                       # Сообщаем проекту, что он изменен
 
 class GroupElement(RootElement):
     '''
