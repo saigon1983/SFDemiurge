@@ -61,11 +61,11 @@ class MainGui(QMainWindow):
         self.mainHLayout.addLayout(self.mainVLayout)
     def initWidgets(self):
         # Метод конструирования виджетов
-        self.TILE_VIEWER			= TileViewer(self)	# Виджет отображения текущего тайла
+        self.TILE_VIEWER		= TileViewer(self)	    # Виджет отображения текущего тайла
         self.TILESET_MANAGER 	= TilesetManager(self)	# Виджет работы с тайлсетом
         self.PROJECT_MANAGER	= ProjectManager(self)	# Виджет менеджмента структуры проекта
-        self.SCENE_MANAGER	= SceneManager(self)		# Виджет менеджмента структуры проекта
-        self.TILESET_SELECTOR	= TilesetSelector(self)	# Виджет отображения текущего тайла
+        self.SCENE_MANAGER	    = SceneManager(self)	# Виджет менеджмента структуры проекта
+        self.TILESET_SELECTOR   = TilesetSelector(self)	# Виджет отображения текущего тайла
         self.BARS = BarsManager(self)					# Настройка основных панелей
     def placeWidgets(self):
         # Метод размещения виджетов по компоновщикам
