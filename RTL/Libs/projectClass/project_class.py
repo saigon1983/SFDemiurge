@@ -76,7 +76,6 @@ class Project:
 	@classmethod
 	def fromFile(cls, main, folderpath):
 		# Метод создания проекта на основе данных, полученных из файла project.data в папке folderpath
-		print(folderpath)
 		projectFile = open(os.path.join(folderpath, 'project.data'), 'rb')
 		newProjectData 	= pickle.load(projectFile)
 		newProject = cls(main, newProjectData)
