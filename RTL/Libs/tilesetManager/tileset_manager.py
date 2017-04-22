@@ -10,7 +10,6 @@
 	TilesetSelector - потомок QComboBox. Этот виджет позволяет выбрать текущий тайлсет из списка доступных
 	TileViewer 		- потомок QLabel. Необходим для просмотра текущего активного тайла в отдельном окне
 '''
-from PyQt4.QtGui import *
 from RTL.Libs.tilesetManager.tileset_viewer import *
 
 class TilesetManager(QTabWidget):

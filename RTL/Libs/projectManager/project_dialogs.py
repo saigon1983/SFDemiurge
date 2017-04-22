@@ -86,17 +86,17 @@ class Dialog_NewScene(QDialog):
         # Создание сцены возможно только если: ширина и высота равны 5 или более (до 999), имя сцены не пустое и такого
         # имени еще нет в списке имен сцен
         if int(self.sceneWidth.text()) >= 5 and int(self.sceneHeight.text()) >= 5 and \
-            self.sceneName.text() and self.sceneName.text() not in self.callingItem.root.usedSceneNames:
+            self.sceneName.text() and self.sceneName.text() not in self.callingItem.rootItem.usedSceneNames:
             self.buttons.buttons()[0].setDisabled(False)
         else:
             self.buttons.buttons()[0].setDisabled(True)
     def setIDField(self):
         # Метод настройки поля отображения ID создаваемой сцены
-        self.sceneID = QLabel(str(self.callingItem.ID + 1).zfill(4))
+        self.sceneID = QLabel('EL' + str(self.callingItem.element.root.ElementCounter).zfill(4))
     def setNameField(self):
         # Метод настройки поля ввода названия сцены. По умолчанию предлагается название соответствующее порядковому номеру
         self.sceneName = QLineEdit()                                # Создаем поле ввода названия сцены
-        self.sceneName.setText('Scene AR' + str(self.callingItem.root.scenesCounter + 1).zfill(4))
+        self.sceneName.setText('Scene AR' + str(self.callingItem.rootItem.scenesCounter + 1).zfill(4))
         self.sceneName.textChanged.connect(self.validateInputs)     # Соединяем сигнал изменения текста с методом валидации
         self.sceneName.setAlignment(Qt.AlignVCenter | Qt.AlignRight)# Выравниваем текст по вертикали и правому краю
     def setSizeFields(self):

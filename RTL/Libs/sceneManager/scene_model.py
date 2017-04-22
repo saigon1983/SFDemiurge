@@ -9,7 +9,7 @@ TILESIZE = int(ConfigObj("config.ini")['EDITOR OPTIONS']['Tilesize'])
 
 class SceneModel(QGraphicsScene):
     PASSABILITY = ('Empty','Solid','Hover')	# Список возможных значений проходимости клетки
-    def __init__(self, main, node, sceneData):
+    def __init__(self, main, sceneData):
         '''
         Конструктор класса принимает два аргумента:
             main        - ссылка на главное окно
@@ -17,23 +17,20 @@ class SceneModel(QGraphicsScene):
         '''
         self.mainWindow = main      # Ссылка на главное окно
         self.PROXY = main.PROXY     # Ссылка на прокси-буфер
-        self.setupNode(node)        # Привязываем модель к узлу структуры
         self.setupData(sceneData)   # Устанавливаем переданные данные
         super().__init__(0, 0, float(TILESIZE * self.tiles_in_row), float(TILESIZE * self.tiles_in_col)) # Конструктор суперкласса
-        self.placeTiles(self.tilelist)
-        self.setTriggers(self.triggers)
-        self.setPassability(self.walkMap)
+        self.placeTiles(self.tilelist)      # Расставляем тайлы по сцене, если они есть
+        self.setTriggers(self.triggers)     # Настраиваем триггеры
+        self.setPassability(self.walkMap)   # Настраиваем карту проходимости
 # ==========Перегруженные методы доступа к атрибутам сцены==========
     def width(self):		return int(super().width())
     def height(self):		return int(super().height())
 # ==========Методы-установщики==========
-    def setupNode(self, node):
-        # Метод связывания модели с узлом структуры
-        self.node = node            # Сохраняем ссылку на узел
-        self.node.bindScene(self)   # Запускаем метод связывания узла
     def setupData(self, sceneData):
         # Метод установки атрибутов сцены на основе переданных данных sceneData
         self.data = sceneData
+        self.ID             = self.data['ID']           # Уникальный номер сцены
+        self.IDstr          = self.data['IDString']     # Уникальный номер сцены встроковом представлении
         self.name           = self.data['Name']         # Имя сцены
         self.tiles_in_row   = self.data['Width']        # Ширина в тайлах
         self.tiles_in_col   = self.data['Height']       # Высота в тайлах
@@ -43,7 +40,7 @@ class SceneModel(QGraphicsScene):
         self.walkMap        = self.data['WalkMap']      # Карта проходимости в виде словаря
     def placeTiles(self, tilelist):
         # Метод размещения тайлов из списка tilelist по сцене
-        pass
+        for tile in tilelist: self.addItem(tile.duplicate())
     def setTriggers(self, triggers):
         '''
 		Метод установки триггеров сцены. Триггеры могут быть следующими:
@@ -54,9 +51,12 @@ class SceneModel(QGraphicsScene):
 			drawFG - триггер необходимости отрисовки вспомогательной сетки. Имеет положения True или False
 		Если методу не передается какой-либо набор триггеров, они устанавливаются по умолчанию
 		'''
-        self.viewMode = triggers.setdefault('viewMode', 'Simple')   # Режим просмотра сцены
-        self.drawBG	  = triggers.setdefault('drawBG', True)         # Флаг отрисовки заднего фона
-        self.drawFG	  = triggers.setdefault('drawFG', True)         # Флаг отрисовки переднего фона
+        try:    self.viewMode   = triggers['viewMode']
+        except: self.viewMode   = 'Simple'  # Режим просмотра сцены
+        try:    self.drawBG     = triggers['drawBG']
+        except: self.drawBG     = True      # Флаг отрисовки заднего фона
+        try:    self.drawFG     = triggers['drawFG']
+        except: self.drawFG     = True      # Флаг отрисовки переднего фона
     def setPassability(self, passmap):
         # Метод установки таблицы проходимости сцены. На этапе отладки программы доступна возможность генерирования
         # случайной карты проходимости в случае отсутствия аргумента
@@ -74,3 +74,6 @@ class SceneModel(QGraphicsScene):
     def drawForeground(self, fore, rect):
         # Метод отрисовки переднего фона. Зависит от текущего режима viewMode
         pass
+    def save(self, path):
+        # Метод сохранения данных сцены в файл
+        print(self.IDstr)

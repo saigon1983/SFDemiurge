@@ -36,6 +36,14 @@ class ProjectManager(QTreeView):
             element = item.model().itemFromIndex(item)  # Получаем активный элемент
             element.callPopupMenu(position)                 # Вызываем меню этого элемента
     def doubleClick(self, index):
-        # Метод реакции на войной щелчок мышью. Для элементов сцены - открывает сцену в редакторе, для остальных -
+        # Метод реакции на двойной щелчок мышью. Для элементов сцены - открывает сцену в редакторе, для остальных -
         # сворачивает/разворачивает ветку
-        pass
+        if self.selectedIndexes():
+            item = self.selectedIndexes()[0]
+            element = item.model().itemFromIndex(item)  # Получаем активный элемент
+            if element.tag == 'Scene element':
+                element.setSceneToEditor()              # Если активный элемент - сцена, загружаем ее в редактор
+    def compile(self):
+        # Метод копиляции сцен проекта. Происходит обход всех сцен в проекте и сохранение их графических данных в файлы,
+        # а неграфические данные сохраняются в объект структуры проекта
+        self.projectRoot.compile()
