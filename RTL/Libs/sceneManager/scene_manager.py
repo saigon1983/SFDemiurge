@@ -58,7 +58,7 @@ class SceneManager(QGraphicsView):
         if self.PROXY.TILE: # Размещаем тайл только при наличии этого тайла в буфере
             pointToPlace = adjustToTilesize(coords, self.PROXY.SIZE)    # Корректируем координаты
             xyz = (pointToPlace.x(), pointToPlace.y(), self.PROXY.LAYER)# Собираем в кортеж координаты и высоту
-            newTile = Tile(self.PROXY.TILE, *xyz)                       # Конструируем тайл
+            newTile = Tile(self.PROXY.TILE[:], *xyz)                       # Конструируем тайл
             self.scene().addItem(newTile)                               # Передаем тайл сцене
     def removeTile(self, coords):
         # Метод удаления тайла в текущих координатах

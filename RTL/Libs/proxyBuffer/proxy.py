@@ -20,6 +20,7 @@ class ProxyBuffer:
         buffer = QBuffer(self.TILE)     # Создаем буфер
         buffer.open(QIODevice.WriteOnly)# Открываем буфер для записи
         pixmap.save(buffer, 'PNG')      # Сохраняем изображение в массив байтов
+        buffer.close()
         self.MAIN.TILE_VIEWER.setPixmap(pixmap.scaled(self.SIZE*2,self.SIZE*2)) # Помещаем изображение в TILE_VIEWER
     def setActualTilesize(self, factor):
         # Метод устанвки текущего активного слоя
