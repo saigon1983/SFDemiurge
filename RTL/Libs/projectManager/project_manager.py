@@ -28,6 +28,7 @@ class ProjectManager(QTreeView):
         self.projectRoot = RootElement(self, self.structure)    # Оформляем корень дерева
         self.model().appendRow(self.projectRoot)                # Добавляем все ряды в виджет
         self.expandAll()                                        # Раскрываем все узлы
+        self.projectRoot.listOfScenes[0].setSceneToEditor()
     def popupMenu(self, position):
         # Метод вызова контекстного меню текущего выбранного элемента. Аргумент местоположения курсора position
         # передается автоматически из сигнала customContextMenuRequested

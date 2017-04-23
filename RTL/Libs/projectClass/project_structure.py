@@ -5,7 +5,7 @@
 
 class ProjectRootElement:
     # Корневой элемент проекта
-    def __init__(self, name, tag = 'Root element', parent = None, root = None):
+    def __init__(self, name, tag = 'Root element', parent = None, root = None, folder = None):
         '''
         Констурктор принимает 3 аргумента
             name -      имя элемента
@@ -18,10 +18,12 @@ class ProjectRootElement:
         # Создание атрибутов класса
         self.name   = name      # Имя
         self.tag    = tag       # Тег
-        if self.tag == 'Root element':
+        if not root:
+            self.root = self    # Корнем корня является сам корень))
             self.initRoot()     # Обнуляем счетчики только для корневого элемента
-        if not root:    self.root = self    # Корнем корня является сам корень))
-        else:           self.root = root    # Остальным элементам передается ссылка на корневой элемент
+            self.path = folder  # Ссылка на каталог проекта доступна только для корневого элемента
+        else:
+            self.root = root    # Остальным элементам передается ссылка на корневой элемент
         self.parent = parent    # Объект-родитель
         self.correctLevels()    # Корректировка уровней
         # Создание идентификаторов
@@ -68,13 +70,9 @@ class ProjectRootElement:
         # считается именем сцены и на ее основе создается новый объект ProjectSceneElement. Если в качестве
         # аргумента передается объект сцены, то ему просто меняется родитель
         if type(someData) == str: ProjectSceneElement(someData, self, self.root)
-        elif type(someData) ==  ProjectSceneElement: someData.changeParent(self)
+        elif isinstance(someData, ProjectSceneElement): someData.changeParent(self)
         else: raise TypeError('Wrong someData passed to addScene() method! Must be String or ProjectSceneElement,\
                               but {} recieved!'.format(type(someData)))
-#========== Методы внешнего менеджмента ==========
-    def compile(self):
-        # Метод обходит все вложенные элементы и сохраняет их данные в словарь
-        pass
 #========== Методы представления объекта ==========
     def info(self, tab = ''):
         # Метод возвращает строку, представляющую из себя дерево структуры
@@ -131,16 +129,23 @@ class ProjectSceneElement(ProjectRootElement):
         except: self.sceneData['Width']         = 10
         try:    self.sceneData['Height']        = someSceneData['Height']
         except: self.sceneData['Height']        = 10
-        try:    self.sceneData['Tiles']         = someSceneData['Tiles']
-        except: self.sceneData['Tiles']         = []
-        try:    self.sceneData['WalkMap']       = someSceneData['WalkMap']
-        except: self.sceneData['WalkMap']       = {}
-        try:    self.sceneData['Triggers']      = someSceneData['Triggers']
-        except: self.sceneData['Triggers']      = {}
+        try:    self.sceneData['SceneFile']     = someSceneData['SceneFile']
+        except: self.sceneData['SceneFile']     = self.root.path + "\\Scenes\\" + self.typeIDstr + '.sdf'
         try:    self.sceneData['MainTileset']   = someSceneData['MainTileset']
-        except: self.sceneData['MainTileset']   = ''
+        except: self.sceneData['MainTileset']   = 'World Map Main'
     def correctAtributes(self):
         # Метод корректировки атрибутов
         self.typeID     = self.sceneData['ID']
         self.typeIDstr  = self.sceneData['IDString']
         self.name       = self.sceneData['Name']
+
+class ProjectWorldMapElement(ProjectSceneElement):
+    # Специализированный класс, определяющий элемент карты мира - единственной карты, которая всегда должна быть у проекта
+    # Ее нельзя удалить, но можно редактирвоать. Кроме того, при загрузке проекта она всегда открывается в редакторе
+    # автоматически. Так же эта карта автоматически создается всегда при создании нового проекта
+    def __init__(self, root):
+        worldMapData = {'Name': 'World map',
+                        'Width': 50,
+                        'Height': 50}                           # Конструируем базовые данные
+        super().__init__('World map', root, root, worldMapData) # Передаем данные суперклассу
+        self.root.worldMap = self                               # Создаем в корневом элементе прямую сылку на этот объект

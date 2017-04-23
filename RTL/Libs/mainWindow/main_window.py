@@ -63,8 +63,8 @@ class MainGui(QMainWindow):
         # Метод конструирования виджетов
         self.TILE_VIEWER		= TileViewer(self)	    # Виджет отображения текущего тайла
         self.TILESET_MANAGER 	= TilesetManager(self)	# Виджет работы с тайлсетом
-        self.PROJECT_MANAGER	= ProjectManager(self)	# Виджет менеджмента структуры проекта
         self.SCENE_MANAGER	    = SceneManager(self)	# Виджет менеджмента структуры проекта
+        self.PROJECT_MANAGER	= ProjectManager(self)	# Виджет менеджмента структуры проекта
         self.TILESET_SELECTOR   = TilesetSelector(self)	# Виджет отображения текущего тайла
         self.BARS = BarsManager(self)					# Настройка основных панелей
     def placeWidgets(self):
@@ -95,21 +95,30 @@ class MainGui(QMainWindow):
         self.setHeader()                        # Обновляем заголовок окна
         print('Project created!')
 #========== Методы для начала работы ==========
-    def getRecentProjects(self):
-        # Метод возвращает список последних запускаемых проектов
-        self.recentProjects = []
+    def getCurrentPath(self):
+        # Метод возвращает путь к текущей папке проекта
+        return self.PROJECT.path
+    def recentProjects(self):
+        # Метод возвращает список последних запускаемых проектов и корректирует записи в ini-файле
+        recentProjects = []    # Создаем пустой список
         for i in range(8):
+            # Добавляем в список только те пути, которые реально существуют
             link = self.CONFIG['SYSTEM OPTIONS']['Recent {}'.format(i)]
-            if link:	self.recentProjects.append(link)
+            if os.path.exists(link): recentProjects.append(link)
+        for i in range(8):
+            # На основании полученного списка формируем новую последовательность и записываем ее в конфигурационный файл
+            if i < len(recentProjects): data = recentProjects[i]
+            else:                       data = ''
+            self.CONFIG['SYSTEM OPTIONS']['Recent {}'.format(i)] = data
+        self.CONFIG.write()
+        return recentProjects
     def setupProject(self, project):
         # Метод установки текущего проекта
         if project: self.PROJECT = project	# Если проект явно передан, просто устанавливаем его
         else:								# Если проект не передан, запускаем процедуру выбора проекта
-            self.getRecentProjects()
-            if self.recentProjects:
-                self.PROJECT = Project.fromFile(self, self.recentProjects[-1])
-            else:
-                self.PROJECT = Project.fromStratch(self)
+            projects = self.recentProjects()
+            if projects:    self.PROJECT = Project.fromFile(self, projects[-1])
+            else:           self.PROJECT = Project.fromStratch(self)
 #========== Методы завершения работы приложения ==========
     def closeEvent(self, event):
         # Метод перехвата события выхода из приложения. Проверяет сохранность всех данных и закрывает редактор

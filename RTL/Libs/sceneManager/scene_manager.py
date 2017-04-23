@@ -43,7 +43,7 @@ class SceneManager(QGraphicsView):
         if self.PROXY.TILE:
             pointToPlace = adjustToTilesize(coords, self.PROXY.SIZE)
             newTile = Tile(self.PROXY.TILE, pointToPlace.x(), pointToPlace.y(), self.PROXY.LAYER)
-            self.scene().placeTiles([newTile])
+            self.scene().placeTile(newTile)
     def mouseInScene(self, coords):
         # Метод проверяет, находится ли курсор мыши в активной зоне сцены (можно ли рисовать)
         if coords.x() >= 0 and coords.y() >= 0 and coords.x() < self.scene().width() and coords.y() < self.scene().height(): return True

@@ -5,15 +5,12 @@
 и сохранения проекта
 '''
 import shutil, os, pickle
-from configobj import ConfigObj
-from RTL.Libs.projectClass.project_creator import *
+from RTL.Libs.projectClass.project_creator import ProjectCreator
 from RTL.Libs.projectClass.project_structure import *
 
-
-
 class Project:
-    PROJECTSLOCATION 	= 'Projects'		# Путь к каталогу проектов
-    SOURSESLOCATION	= r'RTL\Game'	# Путь к каталогу базовых ресурсов проекта
+    PROJECTSLOCATION    = 'Projects'	# Путь к каталогу проектов
+    SOURSESLOCATION     = r'RTL\Game'	# Путь к каталогу базовых ресурсов проекта
     def __init__(self, main, projectData):
         '''
         Конструктор класса принимает три аргумента:
@@ -28,25 +25,22 @@ class Project:
         self.path	= os.path.join(Project.PROJECTSLOCATION, self.folder)	# Путь к каталогу проекта
         self.pid	= self.data['PID']		# Порядковый номер проекта
         self.tree	= self.data['Structure']# Структура проекта
-        self.saved	= True					# Триггер сохраненности проекта. Равен False, если в проекте есть несохраненные изменения
         self.save()							# Сохраняем проект в каталог в файл с именем project.data
-    #========== Методы управления проектом ==========
+#========== Методы управления проектом ==========
     def changed(self):
         # Метод-слот, устанавливающий флаг проекта saved в положение False
         self.saved = False
         self.mainWindow.setHeader() # Меняем заголовок окна (добавляем зведочку к названию)
     def save(self):
         # Метод сохранения проекта в файл
-        self.tree.compile()
-        projectFile = open(os.path.join(self.path, 'project.data'), 'wb')
-        pickle.dump(self.data, projectFile)
-        projectFile.close()
-        self.saved	= True
-    #========== Методы класса создания экземпляра ==========
+        with open(os.path.join(self.path, 'project.data'), 'wb') as projectFile:
+            pickle.dump(self.data, projectFile)
+        self.saved	= True  # Триггер сохраненности проекта. Равен False, если в проекте есть несохраненные изменения
+#========== Методы класса создания экземпляра ==========
     @classmethod
     def fromStratch(cls, main):
         # Метод создания проекта "с нуля". Создаются имя проекта, имя каталога, базовая структура
-        CONFIG = ConfigObj("config.ini")
+        CONFIG = main.CONFIG
         # Запускаем окно создания проекта, где вводим его имя и имя папки
         projectCreator = ProjectCreator(Project.PROJECTSLOCATION)
         # Если получен положительный ответ (создание прошло успешно), продолжаем работу
@@ -56,7 +50,7 @@ class Project:
             # Создаем объект данных (словарь), на основе которого строится экземпляр класса
             newProjectData = {}
             # Создаем объект структуры проекта, который строится в методе класса structureTemplate()
-            newProjectStructure = Project.structureTemplate(results[0])	#
+            newProjectStructure = Project.structureTemplate(results[0], os.path.join(Project.PROJECTSLOCATION, results[1]))	#
             # Заполняем данные о проекте
             newProjectData['Name'] 		= results[0]			# Имя проекта
             newProjectData['Folder'] 	= results[1]			# Папка проекта
@@ -68,6 +62,7 @@ class Project:
             # Создаем папку проекта
             path = os.path.join(Project.PROJECTSLOCATION, newProjectData['Folder'])
             os.mkdir(path)
+            os.mkdir(path + '\\Scenes')
             # Перемещаем в нее все необходимые файлы и ресурсы
             for file in os.listdir(Project.SOURSESLOCATION):
                 shutil.copy(os.path.join(Project.SOURSESLOCATION, file), os.path.join(path, file))
@@ -80,20 +75,15 @@ class Project:
     @classmethod
     def fromFile(cls, main, folderpath):
         # Метод создания проекта на основе данных, полученных из файла project.data в папке folderpath
-        projectFile = open(os.path.join(folderpath, 'project.data'), 'rb')
-        newProjectData 	= pickle.load(projectFile)
-        newProject = cls(main, newProjectData)
-        projectFile.close()
-        return newProject
+        with open(os.path.join(folderpath, 'project.data'), 'rb') as projectFile:
+            newProjectData 	= pickle.load(projectFile)
+        return cls(main, newProjectData)
     @classmethod
     def saveToRecents(cls, project):
         # Метод записывает переданный проект в список последних проектов. Если текущих проектов уже 8, то происходит
         # смещение на 1 единицу вниз (первый в списке проект удаляется, а текущий проект записывается последним)
-        CONFIG = ConfigObj("config.ini")
-        recentProjects = []
-        for i in range(8):
-            link = CONFIG['SYSTEM OPTIONS']['Recent {}'.format(i)]
-            if link:	recentProjects.append(link)
+        CONFIG = project.mainWindow.CONFIG
+        recentProjects = project.mainWindow.recentProjects()
         if len(recentProjects) < 8:
             CONFIG['SYSTEM OPTIONS']['Recent {}'.format(len(recentProjects))] = project.path
         else:
@@ -102,24 +92,8 @@ class Project:
             CONFIG['SYSTEM OPTIONS']['Recent 7'] = project.path
         CONFIG.write()
     @classmethod
-    def structureTemplate(cls, name):
+    def structureTemplate(cls, name, folder):
         # Метод создания шаблонной структуры проекта для создания проекта "с нуля"
-        tree = ProjectRootElement(name)
-        #tree.addScene('World Map')
-        g1 = ProjectGroupElement('Group 1', tree, tree)
-        g2 = ProjectGroupElement('Group 2', tree, tree)
-        g3 = ProjectGroupElement('Group 3', tree, tree)
-        s1 = ProjectSceneElement('World Map 1', tree, tree)
-        s2 = ProjectSceneElement('World Map 2', tree, tree, {'Name': 'WM2', 'Width': 7, 'Height': 3})
-        s3 = ProjectSceneElement('World Map 3', tree, tree)
-        s4 = ProjectSceneElement('World Map 4', tree, tree)
-        s5 = ProjectSceneElement('World Map 5', tree, tree)
-        tree.addGroup(g1)
-        g1.addGroup(g3)
-        g1.addScene(s1)
-        g3.addScene(s2)
-        g3.addScene(s3)
-        tree.addGroup(g2)
-        g2.addScene(s4)
-        tree.addScene(s5)
-        return tree
+        tree = ProjectRootElement(name, folder = folder)# Создаем корневой элемент
+        tree.addScene(ProjectWorldMapElement(tree))     # Подгружаем в него объект карты мира
+        return tree                                     # Возвращаем корневой элемент

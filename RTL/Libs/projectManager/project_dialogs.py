@@ -23,7 +23,7 @@ class Dialog_NewGroup(QDialog):
     def setFields(self):
         # Метод настройки полей виджета. По умолчанию именем новой группы является следующий ее порядковый номер
         self.groupName = QLineEdit()                            # Создаем поле ввода названия группы
-        self.groupName.setText('Group GR' + str(self.callingItem.root.groupsCounter + 1).zfill(4))
+        self.groupName.setText('Group GR' + str(self.callingItem.rootItem.groupsCounter + 1).zfill(4))
         self.groupName.textChanged.connect(self.validateInputs) # Соединяем сигнал изменения текста с методом валидации
     def setLayouts(self):
         # Метод размещения элементов по виджету
@@ -34,7 +34,7 @@ class Dialog_NewGroup(QDialog):
     def validateInputs(self):
         # Метод проверки валидации. Текстовое поле должно содержать текст и этот текст не должен ранее использоваться
         # для названия группы
-        if self.groupName.text() and self.groupName.text() not in self.callingItem.root.usedGroupNames:
+        if self.groupName.text() and self.groupName.text() not in self.callingItem.rootItem.usedGroupNames:
             self.buttons.buttons()[0].setDisabled(False)
         else:
             self.buttons.buttons()[0].setDisabled(True)

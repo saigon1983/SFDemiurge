@@ -2,7 +2,6 @@
 В этом модуле описан класс тайла, который представляет из себя часть изображения
 '''
 from PyQt4.QtGui import *
-from PyQt4.QtCore import *
 
 class Tile(QGraphicsPixmapItem):
     PASSABILITY = ('Empty','Solid','Hover')		# Список доступных значений проходимости тайла
@@ -27,15 +26,15 @@ class Tile(QGraphicsPixmapItem):
     def setStripIndex(self, index):
         # Метод устанавливает порядковый номер тайла в стрип-полосе
         self.stripIndex = index
-    def getZipInfo(self):
+    def getTileData(self):
         # Метод пакует информацию о тайле в словарь для сохранения в файл
-        zipData = {'image':         self.byteArray,     # Изображение в виде ммассива байтов
+        tileData = {'image':        self.byteArray,     # Изображение в виде массива байтов
                    'x': 			self.x(),           # Координата Х
 				   'y': 			self.y(),           # Координата У
 				   'z': 			self.zValue(),      # Координата Z
                    'passability': 	self.passability,   # Значение проходимости
 				   'stripIndex': 	self.stripIndex}    # Индекс в полосе
-        return zipData	# Возвращаем полученный словарь
+        return tileData	# Возвращаем полученный словарь
     def duplicate(self, x = None, y = None, z = None, passability = None, stripIndex = None):
         # Метод возвращает копию текущего тайла
         an = self.byteArray
@@ -45,3 +44,14 @@ class Tile(QGraphicsPixmapItem):
         pn = passability if passability != None else self.passability
         sn = stripIndex if stripIndex != None else self.stripIndex
         return Tile(an, xn, yn, zn, pn, sn) # Возвращаем получившийся тайл
+    @classmethod
+    def fromTileData(cls, tileData):
+        # Метод класса конструирует тайл на основе zip-данных
+        # Разбираем словарь tileData
+        i = tileData['image']
+        x = tileData['x']
+        y = tileData['y']
+        z = tileData['z']
+        p = tileData['passability']
+        s = tileData['stripIndex']
+        return cls(i, x, y, z, p, s)  # Возвращаем получившийся тайл
