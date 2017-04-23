@@ -63,9 +63,9 @@ class MainGui(QMainWindow):
         # Метод конструирования виджетов
         self.TILE_VIEWER		= TileViewer(self)	    # Виджет отображения текущего тайла
         self.TILESET_MANAGER 	= TilesetManager(self)	# Виджет работы с тайлсетом
+        self.TILESET_SELECTOR   = TilesetSelector(self)	# Виджет отображения текущего тайла
         self.SCENE_MANAGER	    = SceneManager(self)	# Виджет менеджмента структуры проекта
         self.PROJECT_MANAGER	= ProjectManager(self)	# Виджет менеджмента структуры проекта
-        self.TILESET_SELECTOR   = TilesetSelector(self)	# Виджет отображения текущего тайла
         self.BARS = BarsManager(self)					# Настройка основных панелей
     def placeWidgets(self):
         # Метод размещения виджетов по компоновщикам
@@ -132,5 +132,5 @@ class MainGui(QMainWindow):
         return True	# TODO: в дальнейшем заменить True на проверку сохранения всех изменений
     def quitProgram(self):
         # Метод выхода из приложения. Перед закрытием совершает ряд необходимых операций, после чего завершает работу
-        print('Closed!')
+        print('Project closed!')
         qApp.quit()

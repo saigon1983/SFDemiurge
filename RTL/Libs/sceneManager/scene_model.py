@@ -47,9 +47,6 @@ class SceneModel(QGraphicsScene):
     def setupTiles(self, tilelist):
         # Метод размещения тайлов из списка tilelist по сцене
         for tileData in tilelist: self.addItem(Tile.fromTileData(tileData))
-    def placeTile(self, tile):
-        # Метод помещает на сцену переданный тайл tile
-        self.addItem(tile)
     def setTriggers(self, triggers):
         '''
 		Метод установки триггеров сцены. Триггеры могут быть следующими:
@@ -97,7 +94,6 @@ class SceneModel(QGraphicsScene):
         self.sceneFile = self.mainWindow.getCurrentPath() + "\\Scenes\\" + self.IDstr + '.sdf'
         with open(self.sceneFile, 'wb') as sceneFile:
             pickle.dump(self.getSceneData(), sceneFile)
-        print(self.sceneFile)
         self.saved =True
     def getSceneData(self):
         # Метод пакует данные сцены в словарь и возвращает его
@@ -116,6 +112,9 @@ class SceneModel(QGraphicsScene):
         self.sceneData['Triggers']['drawFG'] = self.drawFG
         self.sceneData['WalkMap'] = self.walkMap
         return self.sceneData    # Возвращаем получившийся словарь
+    def duplicate(self):
+        # Метод возвращает копию текущей сцены
+        return SceneModel(self.mainWindow, self.getSceneData())
     @classmethod
     def fromSceneData(cls, main, pathToFile):
         # Метод конструирует объект сцены на основе данных из файла
