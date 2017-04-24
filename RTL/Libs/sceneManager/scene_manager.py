@@ -53,16 +53,32 @@ class SceneManager(QGraphicsView):
         index = tilsetList.index(self.scene().tileset)                  # Получаем индекс базового тайлсета сцены в этом списке
         self.mainWindow.TILESET_SELECTOR.setCurrentIndex(index)         # Автоматически настраиваем виджет на отображение базового тайлсета
 #==========Методы размещения обектов==========
-    def placeTile(self, coords):
+    def getTilesInRect(self, coords):
+        # Метод возвращает список тайлов, которые пересекаются с прямоугольником размером с текущий размер тайла
+        correctedCoords = adjustToTilesize(coords, self.PROXY.SIZE)
+        rectangleToUse  = QRectF(QPointF(correctedCoords),QSizeF(self.PROXY.SIZE, self.PROXY.SIZE))
+        return self.scene().items(rectangleToUse)
+    def placeTile(self, coords, tiles, memorize = True):
         # Метод размещает текущий активный тайл на текущей сцене в координатах coords
         if self.PROXY.TILE: # Размещаем тайл только при наличии этого тайла в буфере
             pointToPlace = adjustToTilesize(coords, self.PROXY.SIZE)    # Корректируем координаты
             xyz = (pointToPlace.x(), pointToPlace.y(), self.PROXY.LAYER)# Собираем в кортеж координаты и высоту
-            newTile = Tile(self.PROXY.TILE[:], *xyz)                       # Конструируем тайл
-            self.scene().addItem(newTile)                               # Передаем тайл сцене
-    def removeTile(self, coords):
-        # Метод удаления тайла в текущих координатах
-        for tile in self.scene().items(coords):
+            newTile = Tile(self.PROXY.TILE[:], *xyz)                    # Конструируем тайл
+            for tile in tiles:
+                # Перебираем тайлы под курсором, и если находим такой же тайл на той же высоте, выходим из метода
+                if tile.zValue() == self.PROXY.LAYER and tile == newTile: return
+            # Если метод дошел до этого места, занчит одинаковых тайлов не встречено
+            if memorize:
+                # Сохраняем сцену, если передан флаг memorize = True
+                self.futureScenes.clear()           # Очищаем контейнер будущих сцен
+                self.memorizeScene()    	        # Запоминаем сцену
+            for tile in tiles:
+                # Повторно перебираем тайлы и удаляем те, которые находятся на текущием слое
+                if tile.zValue() == self.PROXY.LAYER: self.scene().removeItem(tile)
+            self.scene().addItem(newTile)           # Передаем тайл сцене
+    def removeTile(self, coords, tiles):
+        # Метод удаления тайлов в текущих координатах
+        for tile in tiles:
             if tile.zValue() == self.PROXY.LAYER: self.scene().removeItem(tile)
     def mouseInScene(self, coords):
         # Метод проверяет, находится ли курсор мыши в активной зоне сцены (можно ли рисовать)
@@ -116,18 +132,20 @@ class SceneManager(QGraphicsView):
         return super().leaveEvent(event)
     def mousePressEvent(self, event):
         # Метод обработки события нажатия кнопок мыши
-        self.setMouseButtonsFlags(event) 		 # Выставляем значение истины для одной из нажатых кнопок мыши
-        coords = self.mapToScene(event.x(),event.y())# Получаем координаты текущего местоположения курсора мыши относительно сцены
-        if self.scene() and self.mouseInScene(coords):
+        self.setMouseButtonsFlags(event) 		        # Выставляем значение истины для одной из нажатых кнопок мыши
+        coords = self.mapToScene(event.x(),event.y())   # Получаем координаты текущего местоположения курсора мыши
+        if self.scene() and self.mouseInScene(coords):  # 
             if self.scene().viewMode == 'Simple':
+                collideTiles = self.getTilesInRect(coords)
                 if self.mouseLeftPressed:
-                    self.futureScenes.clear()   	# Очищаем контейнер будущих сцен
-                    self.memorizeScene()    	# Запоминаем сцен
-                    self.placeTile(coords)			# Размещаем активный тайл
+                    self.placeTile(coords, collideTiles)# Вызываем метод размещения крусора, который сам удалит нужные тайлы
                 elif self.mouseRightPressed:
-                    self.futureScenes.clear()   	# Очищаем контейнер будущих сцен
-                    self.memorizeScene()    	# Запоминаем сцен
-                    self.removeTile(coords)         # Удаляем тайл под курсором
+                    # Если нажата правая кнопка и под курсором имеются тайлы текущего уровня, сохраняем состояние и
+                    # удаляем все эти тайлы. В ином случае ничего не происходит
+                    if collideTiles:
+                        self.futureScenes.clear()               # Очищаем контейнер будущих сцен
+                        self.memorizeScene()    	            # Запоминаем сцену
+                        self.removeTile(coords, collideTiles)   # Удаляем тайл под курсором
     def mouseMoveEvent(self, event):
         self.showMousePosition(event)	# Выводим координаты текущей клетки под курсором в строку состояния
     def mouseReleaseEvent(self, event):

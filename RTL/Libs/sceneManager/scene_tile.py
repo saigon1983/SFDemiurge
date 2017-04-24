@@ -29,15 +29,15 @@ class Tile(QGraphicsPixmapItem):
     def getTileData(self):
         # Метод пакует информацию о тайле в словарь для сохранения в файл
         tileData = {'image':        self.byteArray,     # Изображение в виде массива байтов
-                   'x': 			self.x(),           # Координата Х
-				   'y': 			self.y(),           # Координата У
-				   'z': 			self.zValue(),      # Координата Z
-                   'passability': 	self.passability,   # Значение проходимости
-				   'stripIndex': 	self.stripIndex}    # Индекс в полосе
+                    'x': 			self.x(),           # Координата Х
+				    'y': 			self.y(),           # Координата У
+				    'z': 			self.zValue(),      # Координата Z
+                    'passability': 	self.passability,   # Значение проходимости
+				    'stripIndex': 	self.stripIndex}    # Индекс в полосе
         return tileData	# Возвращаем полученный словарь
     def duplicate(self, x = None, y = None, z = None, passability = None, stripIndex = None):
         # Метод возвращает копию текущего тайла
-        an = self.byteArray
+        an = self.byteArray[:]
         xn = x if x != None else self.x()
         yn = y if y != None else self.y()
         zn = z if z != None else self.zValue()
@@ -48,10 +48,15 @@ class Tile(QGraphicsPixmapItem):
     def fromTileData(cls, tileData):
         # Метод класса конструирует тайл на основе zip-данных
         # Разбираем словарь tileData
-        i = tileData['image']
+        i = tileData['image'][:]
         x = tileData['x']
         y = tileData['y']
         z = tileData['z']
         p = tileData['passability']
         s = tileData['stripIndex']
         return cls(i, x, y, z, p, s)  # Возвращаем получившийся тайл
+    def __eq__(self, other):
+        # Переопределяем метод сравнения. Два тайла считаются равными, если совпадает их изображение (массив байтов),
+        # независимо от координат, высоты и проходимости
+        if self.byteArray == other.byteArray: return True
+        else: return False
