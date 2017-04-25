@@ -37,6 +37,7 @@ class TilesetManager(QTabWidget):
 			# Добавляем вкладки к виджету для каждой нарезки
 			self.addTab(view, TilesetManager.TABNAMES[self.views.index(view)])
 		self.setCurrentIndex(index)	# Делаем активной ту же вкладку, что была активной до смены тайлсета
+		self.views[self.currentIndex()].setActiveTile()
 	def refresh(self):
 		# Метод обновления виджета
 		self.update()
