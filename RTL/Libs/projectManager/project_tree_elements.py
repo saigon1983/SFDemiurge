@@ -74,6 +74,7 @@ class RootElement(QStandardItem):
         newSceneStructElement = ProjectSceneElement(sceneData['Name'], self.element, self.element.root, sceneData)  # Новый элемент структуры
         newSceneElement = SceneElement(self.selectorWindow, newSceneStructElement, self.rootItem, self)             # Новый элемент дерева
         self.insertRow(self.rowCount(), newSceneElement)	                                                        # Добавляем элемент в отображение
+        newSceneElement.setSceneToEditor()                                                                          # Открываем сцену в редакторе
         self.mainWindow.PROJECT.changed()                                                                           # Сообщаем проекту, что он изменен
     def compile(self):
         # Метод обходит все элемнты, координирует их данные с данными узлов структуры и сохраняет сцены в файлы
