@@ -18,7 +18,7 @@ class AbstractAction(QAction):
         super().__init__(mainWindow)	# Инициализируем через суперкласс
         # Подключаем сигнал активации действия к переданному методу
         if slot and value:	self.triggered.connect(lambda: slot(value))
-        elif slot:				self.triggered.connect(slot)
+        elif slot:			self.triggered.connect(slot)
 #======== Настройка действий по выбору размера тайла========
 class SetTilesizeAction(AbstractAction):
     # Класс действий по смене размера выбираемого тайла
@@ -72,9 +72,9 @@ class LayerSwitchers(QActionGroup):
         super().__init__(mainWindow)
         # Создаем группу действий (в данном случае из четырех элементов)
         actions = (SetLayerAction(mainWindow, slot, 1),
-                        SetLayerAction(mainWindow, slot, 2),
-                        SetLayerAction(mainWindow, slot, 3),
-                        SetLayerAction(mainWindow, slot, 4))
+                   SetLayerAction(mainWindow, slot, 2),
+                   SetLayerAction(mainWindow, slot, 3),
+                   SetLayerAction(mainWindow, slot, 4))
         # Назначем активным по умолчанию первое действие
         actions[0].setChecked(True)
         # Подключаем действия к общей группе
@@ -92,11 +92,11 @@ class ViewScaler(QSlider):
         self.setFixedWidth(40)   # Фиксируем ширину зумера
         self.setOrientation(Qt.Horizontal)   # Располагаем зумер горизонтально
         self.properToolTipText()
-        self.valueChanged.connect(self.PROXY.setViewScale, self.value())
-        self.valueChanged.connect(self.mainWindow.SCENE_EDITOR.scaleChange)
+        self.valueChanged.connect(self.PROXY.setScaleMode, self.value())
+        self.valueChanged.connect(self.mainWindow.SCENE_MANAGER.scaleChange)
         self.valueChanged.connect(self.properToolTipText)
     def properToolTipText(self):
-        self.setToolTip('Текущий масштаб: {}:1'.format([0.25, 0.5, 1, 2, 4][self.PROXY.viewScale]))
+        self.setToolTip('Текущий масштаб: {}:1'.format([0.25, 0.5, 1, 2, 4][self.PROXY.SCALE]))
 #======== Настройка действия отрисовки вспомогательной сетки========
 class DrawGridAction(AbstractAction):
     # Класс действия переключения режима отрисовки сетки
@@ -121,18 +121,18 @@ class DrawPassAction(AbstractAction):
     # Класс действия переключения режима отрисовки проходимости
     def __init__(self, mainWindow):
         # Инициализируем через суперкласс
-        super().__init__(mainWindow, mainWindow.SCENE_EDITOR.switchDrawPass)
+        super().__init__(mainWindow, mainWindow.SCENE_MANAGER.switchDrawPass)
         # Назначаем иконки
         icon = QIcon()
         icon.addPixmap(QPixmap("RTL\\Images\\Icons\\pass.png"))	# Иконка в неактивном состоянии
         icon.addPixmap(QPixmap("RTL\\Images\\Icons\\passA.png"), QIcon.Normal, QIcon.On)	# Иконка в активном состоянии
         self.setIcon(icon)
-        # Устанавливаем текст для отображения в главном меню прилоения
+        # Устанавливаем текст для отображения в главном меню приложения
         self.setText('Отрисовка карты проходимости вкл/выкл')
         # Делаем кнопку нажимаемой
         self.setCheckable(True)
         # Фиксируем состояние кнопки в зависимости от текущего режима выбранной сцены
-        self.setChecked(mainWindow.SCENE_EDITOR.scene().viewMode == 'passability')
+        self.setChecked(mainWindow.SCENE_MANAGER.scene().viewMode == 'passability')
         # Назначаем комбинацию клавиш для переключения режима
         self.setShortcut( QKeySequence('Ctrl+P'))
 #======== Настройка основных действий с проектом ========

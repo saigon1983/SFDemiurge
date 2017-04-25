@@ -7,6 +7,7 @@ from RTL.Libs.helpFunctions.adjust_to_tilesize import adjustToTilesize
 from RTL.Libs.sceneManager.scene_tile import Tile
 
 class SceneManager(QGraphicsView):
+    PASSABILITY = ['Empty','Solid','Hover'] # Атрибут класса, содержащий допустимые значения проходимости клетки
     def __init__(self, main):
         self.mainWindow = main				# Ссылка на главное окно
         super().__init__(self.mainWindow)	# Инициализируем суперкласс
@@ -34,6 +35,16 @@ class SceneManager(QGraphicsView):
         self.futureScenes	= []  		# Контейнер будущих сцен. Для REDO
         self.STACKSIZE = int(self.mainWindow.CONFIG['EDITOR OPTIONS']['Undo stacksize'])    # Размер стека для UNDO
         self.sceneChanged = False       # Триггер измененности сцены. Если сцена меняется, устанавливается True
+        # Вспомогательные атрибуты прошлых координат курсора, необходимые для коррректной отработки редактирования проходимостей
+        self.xWas = None;		self.yWas = None
+    def setScene(self, scene):
+        # Переопределяем метод установки новой сцены
+        super().setScene(scene)	                                        # Вызываем метод суперкласса
+        tilsetList = self.mainWindow.TILESET_SELECTOR.tilesetData.NAMES # Получаем список доступных тайлсетов
+        index = tilsetList.index(self.scene().tileset)                  # Получаем индекс базового тайлсета сцены в этом списке
+        self.mainWindow.TILESET_SELECTOR.setCurrentIndex(index)         # Автоматически настраиваем виджет на отображение базового тайлсета
+        self.scene().tileChanged.connect(self.onChange)                 # Соединяем сигнал об изменении сцены с слотом
+        self.sceneChanged = False                                       # Отключаем триггер изменения сцены
     def scaleChange(self):
         # Метод смены масштабирования
         delta = [0.25, 0.5, 1, 2, 4][self.PROXY.SCALE] 				# Выбираем масштаб в зависимости от положения ползунка масштабирования
@@ -51,29 +62,35 @@ class SceneManager(QGraphicsView):
     def switchDrawGrid(self):
         # Метод переключения режима отрисовки сетки
         self.scene().drawFG = not self.scene().drawFG
+        self.mainWindow.BARS.updateGridPass(self.scene().viewMode, self.scene().drawFG)
         self.refresh()
     def switchDrawPass(self):
         # Метод переключения режима отображения проходимости
         if self.scene().viewMode == 'Passability': self.scene().viewMode = 'Simple'
-        else:														self.scene().viewMode = 'Passability'
+        else:									   self.scene().viewMode = 'Passability'
+        self.mainWindow.BARS.updateGridPass(self.scene().viewMode, self.scene().drawFG)
         self.refresh()
-    def setScene(self, scene):
-        # Переопределяем метод установки новой сцены
-        super().setScene(scene)	                                        # Вызываем метод суперкласса
-        tilsetList = self.mainWindow.TILESET_SELECTOR.tilesetData.NAMES # Получаем список доступных тайлсетов
-        index = tilsetList.index(self.scene().tileset)                  # Получаем индекс базового тайлсета сцены в этом списке
-        self.mainWindow.TILESET_SELECTOR.setCurrentIndex(index)         # Автоматически настраиваем виджет на отображение базового тайлсета
-        self.scene().tileChanged.connect(self.onChange)                 # Соединяем сигнал об изменении сцены с слотом
-        self.sceneChanged = False                                       # Отключаем триггер изменения сцены
-#==========Методы размещения обектов==========
     def onChange(self):
         # Слот, вызываемый при изменении сцены. Включает триггер
         if not self.sceneChanged: self.sceneChanged = True
+#========== Методы размещения объектов ==========
+    def mouseInScene(self, coords):
+        # Метод проверяет, находится ли курсор мыши в активной зоне сцены (можно ли рисовать)
+        if coords.x() >= 0 and coords.y() >= 0 and coords.x() < self.scene().width() and coords.y() < self.scene().height(): return True
+        return False
     def getTilesInRect(self, coords):
         # Метод возвращает список тайлов, которые пересекаются с прямоугольником размером с текущий размер тайла
         correctedCoords = adjustToTilesize(coords, self.PROXY.SIZE)
         rectangleToUse  = QRectF(QPointF(correctedCoords),QSizeF(self.PROXY.SIZE, self.PROXY.SIZE))
         return self.scene().items(rectangleToUse)
+    def setWasCoords(self, x, y):
+        # Метод установки прошлых координат курсора
+        self.xWas = x;		self.yWas = y
+    def changeIndex(self, index):
+        # Метод смены индекса на 1 влево или вправо в зависимости от нажатой кнопки мыши. Применяется для редактирования карты проходимости
+        if self.mouseRightPressed:	index -= 1
+        if self.mouseLeftPressed: 	index += 1
+        return index
     def placeTile(self, coords, tiles):
         # Метод размещает текущий активный тайл на текущей сцене в координатах coords
         if self.PROXY.TILE: # Размещаем тайл только при наличии этого тайла в буфере
@@ -95,11 +112,7 @@ class SceneManager(QGraphicsView):
             for tile in sameLevelTiles:
                 if tile.zValue() == self.PROXY.LAYER: self.scene().removeTile(tile)
         self.futureScenes.clear()       # Очищаем контейнер будущих сцен
-    def mouseInScene(self, coords):
-        # Метод проверяет, находится ли курсор мыши в активной зоне сцены (можно ли рисовать)
-        if coords.x() >= 0 and coords.y() >= 0 and coords.x() < self.scene().width() and coords.y() < self.scene().height(): return True
-        return False
-#==========Методы преобразовния величин и проверок состояния==========
+#========== Методы преобразовния величин и проверок состояния ==========
     def mapToCells(self, coords):
         # Статический метод преобразования координат курсора в координаты сетки размером TILESIZE
         x = int(coords.x())//self.TILESIZE + 1
@@ -112,7 +125,7 @@ class SceneManager(QGraphicsView):
             x, y = self.mapToCells(coords)
             self.mainWindow.STATUSBAR.showMessage('{}:{}'.format(x, y))
         else: self.mainWindow.STATUSBAR.clearMessage()		    # В противном случае очищаем координаты на статусбаре
-#==========Методы, относящиеся к применению команд UNDO и REDO==========
+#========== Методы, относящиеся к применению команд UNDO и REDO ==========
     def memorizeScene(self):
         # Метод запоминает текущее состояние сцены и добавляет его в контейнер pastScenes
         if len(self.pastScenes) >= self.STACKSIZE: self.pastScenes.pop(0)   # Удаляем первый элемент контейнера, если его размер превысил допустимый
@@ -160,7 +173,16 @@ class SceneManager(QGraphicsView):
                 if self.mouseLeftPressed:                       self.placeTile(coords, collideTiles)
                 # Обрабатываем нажатие правой кнопки мыши. При отсутствии тайлов - пропускаем сигнал нажатия
                 elif self.mouseRightPressed and collideTiles:   self.removeTile(coords, collideTiles)
+            # Обработка нажатий в режиме расстановки тайлов
+            elif self.scene().viewMode == 'Passability':
+                x, y = self.mapToCells(coords)  # Фиксируем текущиие коррдинаты курсора
+                index = self.PASSABILITY.index(self.scene().walkMap[x][y]['passability'])#Получаем индекс текущего значения проходимости в выбранной клетке
+                if x != self.xWas or y != self.yWas:	self.setWasCoords(x, y)
+                # Меняем значение проходимости для текущей клетки в таблице проходимости сцены
+                self.scene().walkMap[x][y]['passability'] = self.PASSABILITY[self.changeIndex(index) % 3]
+                self.scene().update()	# Обновляем сцену
     def mouseMoveEvent(self, event):
+        # Метод обработки движения мыши над виджетом
         self.showMousePosition(event)	# Выводим координаты текущей клетки под курсором в строку состояния
         if self.mouseLeftPressed or self.mouseRightPressed:	# Если нажата одна из нопок мыши
             coords = self.mapToScene(event.x(),event.y())   # Получаем координаты текущего местоположения курсора мыши
@@ -171,6 +193,14 @@ class SceneManager(QGraphicsView):
                 if self.mouseLeftPressed:                       self.placeTile(coords, collideTiles)
                 # Обрабатываем нажатие правой кнопки мыши. При отсутствии тайлов - пропускаем сигнал нажатия
                 elif self.mouseRightPressed and collideTiles:   self.removeTile(coords, collideTiles)
+            # Отработка нажатий в режиме редактирования проходимости
+            elif self.scene().viewMode == 'Passability':
+                x, y = self.mapToCells(coords)  # Фиксируем текущиие коррдинаты курсора
+                index = self.PASSABILITY.index(self.scene().walkMap[x][y]['passability'])#Получаем индекс текущего значения проходимости в выбранной клетке
+                if x != self.xWas or y != self.yWas:
+                    self.setWasCoords(x, y)
+                    self.scene().walkMap[x][y]['passability'] = self.PASSABILITY[self.changeIndex(index) % 3]
+                    self.scene().update()	# Обновляем сцену
     def mouseReleaseEvent(self, event):
         # Метод обработки события отпускания кнопок мыши
         if event.button() == Qt.RightButton:        self.mouseRightPressed  = False

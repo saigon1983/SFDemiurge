@@ -22,10 +22,10 @@ class BarsManager:
     def setActions(self):
         # Метод настройки доступных действий QAction
         self.tilesizeSwitchersGroup = TilesizeSwitchers(self.mainWindow, self.mainWindow.PROXY.setActualTilesize)
-        #self.layerSwitchersGroup = LayerSwitchers(self.mainWindow, self.mainWindow.PROXY.setCurrentLayer)
+        self.layerSwitchersGroup = LayerSwitchers(self.mainWindow, self.mainWindow.PROXY.setActiveLayer)
         self.drawGridAction = DrawGridAction(self.mainWindow)
-        #self.drawPassAction = DrawPassAction(self.mainWindow)
-        #self.viewScaler = ViewScaler(self.mainWindow)
+        self.drawPassAction = DrawPassAction(self.mainWindow)
+        self.viewScaler = ViewScaler(self.mainWindow)
         self.newAction  = NewProjectAction(self.mainWindow)
         self.openAction = OpenProjectAction(self.mainWindow)
         self.saveAction = SaveProjectAction(self.mainWindow)
@@ -56,10 +56,10 @@ class BarsManager:
         self.menuScene	= MainMenu('Сцена', self.mainWindow)
         self.menuScene.addActions(self.tilesizeSwitchersGroup.actions())
         self.menuScene.addSeparator()
-        #self.menuScene.addActions(self.layerSwitchersGroup.actions())
-        #self.menuScene.addSeparator()
+        self.menuScene.addActions(self.layerSwitchersGroup.actions())
+        self.menuScene.addSeparator()
         self.menuScene.addAction(self.drawGridAction)
-        #self.menuScene.addAction(self.drawPassAction)
+        self.menuScene.addAction(self.drawPassAction)
         #=============================================
         menuDatabase 	    = MainMenu('База данных', self.mainWindow)
         #=============================================
@@ -80,10 +80,12 @@ class BarsManager:
         self.mainWindow.TOOLBAR.addSeparator()
         self.mainWindow.TOOLBAR.addActions(self.tilesizeSwitchersGroup.actions())
         self.mainWindow.TOOLBAR.addSeparator()
-        #self.mainWindow.TOOLBAR.addActions(self.layerSwitchersGroup.actions())
+        self.mainWindow.TOOLBAR.addActions(self.layerSwitchersGroup.actions())
+        self.mainWindow.TOOLBAR.addSeparator()
         self.mainWindow.TOOLBAR.addAction(self.drawGridAction)
-        #self.mainWindow.TOOLBAR.addWidget(self.viewScaler)
-        #self.mainWindow.TOOLBAR.addAction(self.drawPassAction)
+        self.mainWindow.TOOLBAR.addAction(self.drawPassAction)
+        self.mainWindow.TOOLBAR.addSeparator()
+        self.mainWindow.TOOLBAR.addWidget(self.viewScaler)
     def setStatusBar(self):
         # Метод настроуки строки состояния
         pass
@@ -92,3 +94,15 @@ class BarsManager:
         # Метод обновления состояния кнопок Undo и Redo
         self.undoAction.setEnabled(True if self.mainWindow.SCENE_MANAGER.pastScenes   else False)
         self.redoAction.setEnabled(True if self.mainWindow.SCENE_MANAGER.futureScenes else False)
+    def updateGridPass(self, mode, drawFG):
+        # Метод обновления кнопок переключения режимов отрисовки сетки и отрисовки карты проходимости
+        # Если активен режим просмотра проходимости
+        if mode == 'Passability':
+            self.drawPassAction.setChecked(True)
+            self.drawGridAction.setChecked(False)
+            self.drawGridAction.setEnabled(False)
+        # Если активен другой режим просмотра сцены
+        else:
+            self.drawGridAction.setEnabled(True)
+            self.drawGridAction.setChecked(drawFG)
+            self.drawPassAction.setChecked(False)

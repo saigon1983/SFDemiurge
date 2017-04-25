@@ -2,7 +2,7 @@
 В этом модуле описывается визуальная модель сцены
 '''
 import os, pickle
-from configobj import ConfigObj
+from random import choice
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from RTL.Libs.sceneManager.scene_tile import Tile
@@ -23,7 +23,7 @@ class SceneModel(QGraphicsScene):
         super().__init__(0, 0, float(self.TILESIZE * self.tiles_in_row), float(self.TILESIZE * self.tiles_in_col)) # Конструктор суперкласса
         self.setupTiles(self.tilelist)      # Расставляем тайлы по сцене, если они есть
         self.setTriggers(self.triggers)     # Настраиваем триггеры
-        self.setPassability(self.walkMap)   # Настраиваем карту проходимости
+        self.setPassability()               # Настраиваем карту проходимости
         if firstCreation: self.save()       # Создаем файл для сцены в случае, когда сцена не загружена из файла
 # ==========Перегруженные методы доступа к атрибутам сцены==========
     def width(self):		return int(super().width())
@@ -65,10 +65,17 @@ class SceneModel(QGraphicsScene):
         try:    self.drawFG     = triggers['drawFG']
         except: self.drawFG     = True      # Флаг отрисовки переднего фона
         self.saved = True   # Флаг сохранности сцены. Значение False означает, что сцена была изменена и изменения не сохранены
-    def setPassability(self, walkMap):
+    def setPassability(self):
         # Метод установки таблицы проходимости сцены. На этапе отладки программы доступна возможность генерирования
         # случайной карты проходимости в случае отсутствия аргумента
-        pass
+        if not self.walkMap:
+            # Если карты проходимости нет, генерируем ее случайным образом (доступно на этапе отладки)
+            self.walkMap = {}
+            for x in range(1, self.tiles_in_row+1):
+                self.walkMap[x] = {}
+                for y in range(1, self.tiles_in_col+1):
+                    self.walkMap[x][y] = {}
+                    self.walkMap[x][y]['passability'] = choice(SceneModel.PASSABILITY)
     def createSceneFile(self):
         # Метод проверяет, есть ли в каталоге сцен файл, соответствующий данной сцене, и если его нет - создает его и
         # записывает в него первоначальные данные
@@ -89,12 +96,13 @@ class SceneModel(QGraphicsScene):
             back.drawRect(0, 0, sidesizeX, sidesizeY) 	            # Отрисовка фона выбранного размера локации
     def drawForeground(self, fore, rect):
         # Метод отрисовки переднего фона. Зависит от текущего режима viewMode
+        tilesize    = self.TILESIZE # Базовый размер тайла
         if self.viewMode == 'Simple' and self.drawFG:
             # Если выбран простой режим отображения и включен триггер отрисовки сетки - рисуем сетку с размером клетки, равным текущему размеру тайла
             fore.setPen(Qt.darkYellow)  # Устанавливаем цвет кисти
             sidesizeX  	= self.width()  # Ширина сцены
             sidesizeY 	= self.height() # Высота сцены
-            tilesize = self.TILESIZE	# Проверяем текущий размер тайла
+            # Проверяем текущий размер тайла
             # Отрисовываем сетку
             for x in range(0, sidesizeX // tilesize):
                 for y in range(0, sidesizeY // tilesize + 1):
@@ -104,6 +112,51 @@ class SceneModel(QGraphicsScene):
                 for y in range(0, sidesizeY // tilesize):
                     fore.drawLine(x * tilesize, y * tilesize, x * tilesize, y * tilesize + tilesize // 8)
                     fore.drawLine(x * tilesize, y * tilesize + (tilesize // 8) * 7, x * tilesize, (y + 1) * tilesize)
+        elif self.viewMode == 'Passability':
+            # Если выбран режим отображения проходимости - сетка не рисуется
+            for x in range(1, self.tiles_in_row + 1):
+                for y in range(1, self.tiles_in_col + 1):
+                    fore.setPen(QPen(Qt.NoPen))	# Отключаем перо
+                    cell = self.walkMap[x][y]['passability']	# Фиксируем текущий элемент таблицы проходимости
+                    # Фиксируем необходимый координаты верхнего левого и правого нижнего угла квадрата
+                    X = tilesize * (x-1)
+                    Xa = X + tilesize // 6 * 2
+                    Y = tilesize * (y-1)
+                    Ya = Y + tilesize // 6 * 2
+                    Sa = tilesize // 3	# Фиксируем ширину иконки
+                    if cell == 'Solid':
+                        # Если клетка непроходима - рисуем красный крест на красном фоне
+                        fore.setBrush(QColor(255,0,0,50))
+                        fore.drawRect(X,Y,tilesize,tilesize)
+                        pen = QPen()
+                        pen.setWidth(2)
+                        pen.setColor(Qt.red)
+                        fore.setPen(pen)
+                        fore.drawLine(Xa, Ya, Xa + Sa, Ya + Sa)
+                        fore.drawLine(Xa + Sa, Ya, Xa, Ya + Sa)
+                    elif cell == 'Hover':
+                        # Если под клеткой можно проходить - рисуем синий прямоугольник на синем фоне
+                        fore.setBrush(QColor(0,0,255,50))
+                        fore.drawRect(X,Y,tilesize,tilesize)
+                        pen = QPen()
+                        pen.setWidth(2)
+                        pen.setColor(Qt.blue)
+                        pen.setJoinStyle(Qt.MiterJoin)
+                        fore.setPen(pen)
+                        fore.drawRect(QRect(Xa, Ya, Sa, Sa))
+                    elif cell == 'Empty':
+                        # Если клетка проходима - рисуем зеленый круг на зеленом фоне
+                        fore.setBrush(QColor(0,255,0,50))
+                        fore.drawRect(X,Y,tilesize,tilesize)
+                        pen = QPen()
+                        pen.setWidth(2)
+                        pen.setColor(Qt.green)
+                        fore.setPen(pen)
+                        fore.drawEllipse(QRect(Xa, Ya, Sa, Sa))
+                    else:
+                        # Во всех остальных случаях выводим сообщение об ошибке
+                        raise ValueError('Wrong passability value in cell {}:{}'.format(x, y))
+# ==========Методы получения различных данных==========
     def placeTile(self, tile):
         # Метод добавления тайла на сцену
         self.addItem(tile)      # Добавляем тайл на сцену
