@@ -36,6 +36,10 @@ class Project:
         with open(os.path.join(self.path, 'project.data'), 'wb') as projectFile:
             pickle.dump(self.data, projectFile)
         self.saved	= True  # Триггер сохраненности проекта. Равен False, если в проекте есть несохраненные изменения
+    def __repr__(self):
+        # Метод строкового представления проекта. Вызывается при попытке отобразить объект Project (print(Project))
+        info = 'Project {}({}), path: {}'.format(self.name, self.pid, self.path)
+        return info
 #========== Методы класса создания экземпляра ==========
     @classmethod
     def fromStratch(cls, main):

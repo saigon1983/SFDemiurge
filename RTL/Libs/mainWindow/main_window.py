@@ -1,6 +1,5 @@
 '''
-Класс MainGui описывает устройство главного окна приложения,
-интерфейс которого обеспечивает доступ ко всем основным
+Класс MainGui описывает устройство главного окна приложения, интерфейс которого обеспечивает доступ ко всем основным
 возможностям редактора
 '''
 import os
@@ -13,6 +12,7 @@ from RTL.Libs.tilesetManager.tile_viewer import TileViewer
 from RTL.Libs.tilesetManager.tileset_selector import TilesetSelector
 from RTL.Libs.projectManager.project_manager import ProjectManager
 from RTL.Libs.sceneManager.scene_manager import SceneManager
+
 
 class MainGui(QMainWindow):
     def __init__(self, config, project = None):
@@ -123,6 +123,7 @@ class MainGui(QMainWindow):
 #========== Методы завершения работы приложения ==========
     def closeEvent(self, event):
         # Метод перехвата события выхода из приложения. Проверяет сохранность всех данных и закрывает редактор
+        # TODO реализовать проверку на сохранность проекта перед выходом из приложения. Так же реализовать сохранение конфига
         if self.couldExit():
             self.quitProgram()
             event.accept()
