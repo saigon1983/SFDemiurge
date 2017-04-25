@@ -67,6 +67,7 @@ class MainGui(QMainWindow):
         self.SCENE_MANAGER	    = SceneManager(self)	# Виджет менеджмента структуры проекта
         self.PROJECT_MANAGER	= ProjectManager(self)	# Виджет менеджмента структуры проекта
         self.BARS = BarsManager(self)					# Настройка основных панелей
+        self.BARS.updateUndoRedo()                      # Обновляем кнопки UNDO и REDO
     def placeWidgets(self):
         # Метод размещения виджетов по компоновщикам
         self.mainVLayout.addWidget(self.TILESET_MANAGER)

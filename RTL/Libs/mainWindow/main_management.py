@@ -30,6 +30,8 @@ class BarsManager:
         self.openAction = OpenProjectAction(self.mainWindow)
         self.saveAction = SaveProjectAction(self.mainWindow)
         self.quitAction = QuitAction(self.mainWindow)
+        self.undoAction = UndoAction(self.mainWindow)
+        self.redoAction = RedoAction(self.mainWindow)
     def setupAll(self):
         # Метод, запускающий настройку всех виджетов
         self.setMainMenu()	# Настройка главного меню
@@ -40,14 +42,16 @@ class BarsManager:
         # Метод настройки главного меню
         # Метод настройки главного меню
         #=============================================
-        self.menuProject 		= MainMenu('Проект', self.mainWindow)
+        self.menuProject    = MainMenu('Проект', self.mainWindow)
         self.menuProject.addAction(self.newAction)
         self.menuProject.addAction(self.openAction)
         self.menuProject.addAction(self.saveAction)
         self.menuProject.addSeparator()
         self.menuProject.addAction(self.quitAction)
         #=============================================
-        menuEdit 			= MainMenu('Правка', self.mainWindow)
+        self.menuEdit 		= MainMenu('Правка', self.mainWindow)
+        self.menuEdit.addAction(self.undoAction)
+        self.menuEdit.addAction(self.redoAction)
         #=============================================
         self.menuScene	= MainMenu('Сцена', self.mainWindow)
         #self.menuScene.addActions(self.tilesizeSwitchersGroup.actions())
@@ -57,19 +61,22 @@ class BarsManager:
         #self.menuScene.addAction(self.drawGridAction)
         #self.menuScene.addAction(self.drawPassAction)
         #=============================================
-        menuDatabase 	= MainMenu('База данных', self.mainWindow)
+        menuDatabase 	    = MainMenu('База данных', self.mainWindow)
         #=============================================
-        menuGame 		= MainMenu('Игра', self.mainWindow)
+        menuGame 		    = MainMenu('Игра', self.mainWindow)
         #=============================================
         menuHelp 			= MainMenu('Справка', self.mainWindow)
         #=============================================
-        MENUS = (self.menuProject, menuEdit, self.menuScene, menuDatabase, menuGame, menuHelp)
+        MENUS = (self.menuProject, self.menuEdit, self.menuScene, menuDatabase, menuGame, menuHelp)
         for menu in MENUS:
             self.mainWindow.MAINMENU.addMenu(menu)
     def setToolBar(self):
         # Метод настройки панели инструментов
         self.mainWindow.TOOLBAR.addAction(self.openAction)
         self.mainWindow.TOOLBAR.addAction(self.saveAction)
+        self.mainWindow.TOOLBAR.addSeparator()
+        self.mainWindow.TOOLBAR.addAction(self.undoAction)
+        self.mainWindow.TOOLBAR.addAction(self.redoAction)
         self.mainWindow.TOOLBAR.addSeparator()
         #self.mainWindow.TOOLBAR.addActions(self.tilesizeSwitchersGroup.actions())
         #self.mainWindow.TOOLBAR.addActions(self.layerSwitchersGroup.actions())
@@ -79,3 +86,8 @@ class BarsManager:
     def setStatusBar(self):
         # Метод настроуки строки состояния
         pass
+#========== Методы управления панелями и действиями ==========
+    def updateUndoRedo(self):
+        # Метод обновления состояния кнопок Undo и Redo
+        self.undoAction.setEnabled(True if self.mainWindow.SCENE_MANAGER.pastScenes   else False)
+        self.redoAction.setEnabled(True if self.mainWindow.SCENE_MANAGER.futureScenes else False)

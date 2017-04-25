@@ -9,16 +9,17 @@ from RTL.Libs.sceneManager.scene_tile import Tile
 
 class SceneModel(QGraphicsScene):
     PASSABILITY = ('Empty','Solid','Hover')	# Список возможных значений проходимости клетки
+    tileChanged = pyqtSignal() # Сигнал, оповещающий о том, что тайл был добавлен либо удален
     def __init__(self, main, sceneData, firstCreation = True):
         '''
         Конструктор класса принимает два аргумента:
             main        - ссылка на главное окно
             sceneData   - словарь параметров сцены
         '''
-        self.mainWindow = main      # Ссылка на главное окно
-        self.PROXY = main.PROXY     # Ссылка на прокси-буфер
+        self.mainWindow = main          # Ссылка на главное окно
+        self.PROXY = main.PROXY         # Ссылка на прокси-буфер
         self.TILESIZE = int(main.CONFIG['EDITOR OPTIONS']['Tilesize'])
-        self.setupData(sceneData)   # Устанавливаем переданные данные
+        self.setupData(sceneData)       # Устанавливаем переданные данные
         super().__init__(0, 0, float(self.TILESIZE * self.tiles_in_row), float(self.TILESIZE * self.tiles_in_col)) # Конструктор суперкласса
         self.setupTiles(self.tilelist)      # Расставляем тайлы по сцене, если они есть
         self.setTriggers(self.triggers)     # Настраиваем триггеры
@@ -89,6 +90,20 @@ class SceneModel(QGraphicsScene):
     def drawForeground(self, fore, rect):
         # Метод отрисовки переднего фона. Зависит от текущего режима viewMode
         pass
+    def placeTile(self, tile):
+        # Метод добавления тайла на сцену
+        self.addItem(tile)      # Добавляем тайл на сцену
+        self.unsaved()          # Сцена изменена
+        self.tileChanged.emit() # Отправляем сообщение
+    def removeTile(self, tile):
+        # Метод удаления тайла со сцены
+        self.removeItem(tile)   # Удаляем тайл со сцены
+        self.unsaved()          # Сцена изменена
+        self.tileChanged.emit() # Отправляем сообщение
+    def unsaved(self):
+        # Метод-уведомление, что сцена изменена
+        self.saved = False                  # Устанавливаем флаг сохранности в положение False
+        self.mainWindow.PROJECT.changed()   # Уведомляем проект о том, что он изменен
     def save(self):
         # Метод сохранения данных сцены в файл
         self.sceneFile = self.mainWindow.getCurrentPath() + "\\Scenes\\" + self.IDstr + '.sdf'
@@ -114,7 +129,7 @@ class SceneModel(QGraphicsScene):
         return self.sceneData    # Возвращаем получившийся словарь
     def duplicate(self):
         # Метод возвращает копию текущей сцены
-        return SceneModel(self.mainWindow, self.getSceneData())
+        return SceneModel(self.mainWindow, self.getSceneData(), False)
     @classmethod
     def fromSceneData(cls, main, pathToFile):
         # Метод конструирует объект сцены на основе данных из файла
