@@ -15,6 +15,7 @@ class ProxyBuffer:
         self.TILE = QByteArray()    # Текущий активный тайл. По умолчанию - пустой массив байтов
         self.SIZE = int(self.CONFIG['EDITOR OPTIONS']['Tilesize'])# Текущий размер тайла
         self.LAYER = 1.0            # Текущий активный слой
+#========== Методы установки атрибутов ==========
     def setActiveTile(self, pixmap):
         # Метод установки текущего активного тайла
         buffer = QBuffer(self.TILE)     # Создаем буфер
