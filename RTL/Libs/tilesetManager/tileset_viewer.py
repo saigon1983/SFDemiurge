@@ -44,7 +44,6 @@ class TilesetViewer(QGraphicsView):
         self.setTransform(QTransform(QMatrix(2,0,0,2,0,0)))		# Запускает отображение в режиме двойного увеличения
         self.setVerticalScrollBarPolicy(1)						# Отключаем отображение вертикальной полосу прокрутки (прокрутка колесиком работает)
         self.setHorizontalScrollBarPolicy(1)					# Отключаем отображение горизонтальной полосы прокрутки
-
     def refresh(self):
         # Метод обновления виджета
         self.scene().refresh()

@@ -31,7 +31,7 @@ class SetTilesizeAction(AbstractAction):
         icon.addPixmap(QPixmap("RTL\\Images\\Icons\\tile{}A.png".format(value)), QIcon.Normal, QIcon.On)	# Иконка в активном состоянии
         self.setIcon(icon)
         # Устанавливаем текст для отображения в главном меню приложения
-        self.setText('Размер тайла: {0} на {0}'.format(mainWindow.PROXY.actualTilesize // (4- value)))
+        self.setText('Размер тайла: {0} на {0}'.format(mainWindow.PROXY.SIZE // (4- value)))
         # Делаем кнопку нажимаемой
         self.setCheckable(True)
 class TilesizeSwitchers(QActionGroup):
@@ -41,7 +41,7 @@ class TilesizeSwitchers(QActionGroup):
         super().__init__(mainWindow)
         # Создаем группу действий (в данном случае из двух элементов)
         actions = (SetTilesizeAction(mainWindow, slot, 1),
-                        SetTilesizeAction(mainWindow, slot, 3))
+                   SetTilesizeAction(mainWindow, slot, 3))
         # Назначем активным по умолчанию последнее действие
         actions[-1].setChecked(True)
         # Подключаем действия к общей группе
@@ -102,7 +102,7 @@ class DrawGridAction(AbstractAction):
     # Класс действия переключения режима отрисовки сетки
     def __init__(self, mainWindow):
         # Инициализируем через суперкласс
-        super().__init__(mainWindow, mainWindow.SCENE_EDITOR.switchDrawGrid)
+        super().__init__(mainWindow, mainWindow.SCENE_MANAGER.switchDrawGrid)
         # Назначаем иконки
         icon = QIcon()
         icon.addPixmap(QPixmap("RTL\\Images\\Icons\\grid.png"))	# Иконка в неактивном состоянии
@@ -113,9 +113,9 @@ class DrawGridAction(AbstractAction):
         # Делаем кнопку нажимаемой
         self.setCheckable(True)
         # Фиксируем состояние кнопки в зависимости от текущего режима выбранной сцены
-        self.setChecked(mainWindow.SCENE_EDITOR.scene().drawFG)
+        self.setChecked(mainWindow.SCENE_MANAGER.scene().drawFG)
         # Назначаем комбинацию клавиш для переключения режима
-        self.setShortcut( QKeySequence('Ctrl+G'))
+        self.setShortcut(QKeySequence('Ctrl+G'))
 #======== Настройка действия отрисовки карты проходимости сцены========
 class DrawPassAction(AbstractAction):
     # Класс действия переключения режима отрисовки проходимости

@@ -25,8 +25,7 @@ class ProxyBuffer:
         self.MAIN.TILE_VIEWER.setPixmap(pixmap.scaled(self.SIZE*2,self.SIZE*2)) # Помещаем изображение в TILE_VIEWER
     def setActualTilesize(self, factor):
         # Метод устанвки текущего активного слоя
-        self.actualTilesize = int(self.CONFIG['EDITOR OPTIONS']['Tilesize'])//3*factor
-        self.MAIN.SCENE_MANAGER.refresh()   # Обновляем менеджер сцены
+        self.SIZE = int(self.CONFIG['EDITOR OPTIONS']['Tilesize'])//3*factor
         self.MAIN.TILESET_MANAGER.refresh() # Обновляем менеджер тайлсетов
     def setActiveLayer(self, value):
         # Метод установки текущего активного слоя

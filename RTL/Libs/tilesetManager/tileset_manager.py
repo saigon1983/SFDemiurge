@@ -13,31 +13,33 @@
 from RTL.Libs.tilesetManager.tileset_viewer import *
 
 class TilesetManager(QTabWidget):
-	TABNAMES = ['A','B','C','D','E','F']	# Стандартные имена вкладок TODO: сменить на нормальные
-	def __init__(self, main):
-		'''
-		Конструктор (на данном этапе) принимает следующие аргументы:
-			main - ссылка на главное окно
-		'''
-		self.mainWindow	= main				# Ссылка на главное окно
-		super().__init__(self.mainWindow)	# Инициализируем суперкласс
-		self.setup()						# Запускаем метод настройки виджета
-		self.setTileset()					# Устанавливаем тайлсет по умолчанию
-		self.views[0].setActiveTile()		# Делаем активный первый тайл первого вида
-	def setup(self):
-		# Метод настройки виджета
-		self.setTabPosition(1)		# Положение закладок - снизу
-		self.setFixedSize(300, 600)	# Фиксируем размеры виджета
-	def setTileset(self, tilesetData = {}):
-		# Метод установки активного тайлсета
-		index = self.currentIndex()	# Запоминаем индекс текущей активной вкладки
-		self.clear()				# Очищаем виджет
-		self.views = sliceFromImage(self.mainWindow, tilesetData)	# Получаем отображения тайлсета методом нарезки
-		for view in self.views:	
-			# Добавляем вкладки к виджету для каждой нарезки
-			self.addTab(view, TilesetManager.TABNAMES[self.views.index(view)])
-		self.setCurrentIndex(index)	# Делаем активной ту же вкладку, что была активной до смены тайлсета
-		self.views[self.currentIndex()].setActiveTile()
-	def refresh(self):
-		# Метод обновления виджета
-		self.update()
+    TABNAMES = ['A','B','C','D','E','F']	# Стандартные имена вкладок TODO: сменить на нормальные
+    def __init__(self, main):
+        '''
+        Конструктор (на данном этапе) принимает следующие аргументы:
+            main - ссылка на главное окно
+        '''
+        self.mainWindow	= main				# Ссылка на главное окно
+        super().__init__(self.mainWindow)	# Инициализируем суперкласс
+        self.setup()						# Запускаем метод настройки виджета
+        self.setTileset()					# Устанавливаем тайлсет по умолчанию
+        self.views[0].setActiveTile()		# Делаем активный первый тайл первого вида
+    def setup(self):
+        # Метод настройки виджета
+        self.setTabPosition(1)		# Положение закладок - снизу
+        self.setFixedSize(300, 600)	# Фиксируем размеры виджета
+    def setTileset(self, tilesetData = {}):
+        # Метод установки активного тайлсета
+        index = self.currentIndex()	            # Запоминаем индекс текущей активной вкладки
+        self.clear()				            # Очищаем виджет
+        self.views = sliceFromImage(self.mainWindow, tilesetData)	# Получаем отображения тайлсета методом нарезки
+        # Добавляем вкладки к виджету для каждой нарезки
+        for view in self.views: self.addTab(view, TilesetManager.TABNAMES[self.views.index(view)])
+        self.setCurrentIndex(index)	            # Делаем активной ту же вкладку, что была активной до смены тайлсета
+        self.currentWidget().setActiveTile()    # Меняем текущий активный тайл
+    def refresh(self):
+        # Метод обновления виджета
+        for view in self.views: view.refresh()		# Обновляем все вкладки
+        updatedPosition = self.currentWidget().scene().selectorCoords
+        self.currentWidget().setActiveTile(updatedPosition)
+        self.update()

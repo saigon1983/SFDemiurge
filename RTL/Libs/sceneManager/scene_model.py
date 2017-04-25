@@ -89,7 +89,21 @@ class SceneModel(QGraphicsScene):
             back.drawRect(0, 0, sidesizeX, sidesizeY) 	            # Отрисовка фона выбранного размера локации
     def drawForeground(self, fore, rect):
         # Метод отрисовки переднего фона. Зависит от текущего режима viewMode
-        pass
+        if self.viewMode == 'Simple' and self.drawFG:
+            # Если выбран простой режим отображения и включен триггер отрисовки сетки - рисуем сетку с размером клетки, равным текущему размеру тайла
+            fore.setPen(Qt.darkYellow)  # Устанавливаем цвет кисти
+            sidesizeX  	= self.width()  # Ширина сцены
+            sidesizeY 	= self.height() # Высота сцены
+            tilesize = self.TILESIZE	# Проверяем текущий размер тайла
+            # Отрисовываем сетку
+            for x in range(0, sidesizeX // tilesize):
+                for y in range(0, sidesizeY // tilesize + 1):
+                    fore.drawLine(x * tilesize, y * tilesize, x * tilesize + tilesize // 8, y * tilesize)
+                    fore.drawLine(x * tilesize + (tilesize // 8) * 7, y * tilesize, (x + 1) * tilesize, y * tilesize)
+            for x in range(0, sidesizeX // tilesize + 1):
+                for y in range(0, sidesizeY // tilesize):
+                    fore.drawLine(x * tilesize, y * tilesize, x * tilesize, y * tilesize + tilesize // 8)
+                    fore.drawLine(x * tilesize, y * tilesize + (tilesize // 8) * 7, x * tilesize, (y + 1) * tilesize)
     def placeTile(self, tile):
         # Метод добавления тайла на сцену
         self.addItem(tile)      # Добавляем тайл на сцену

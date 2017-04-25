@@ -21,9 +21,9 @@ class BarsManager:
         self.mainWindow.STATUSBAR   = StatusBar(self.mainWindow)# Подключаем строку состояния
     def setActions(self):
         # Метод настройки доступных действий QAction
-        #self.tilesizeSwitchersGroup = TilesizeSwitchers(self.mainWindow, self.mainWindow.PROXY.setActualTilesize)
+        self.tilesizeSwitchersGroup = TilesizeSwitchers(self.mainWindow, self.mainWindow.PROXY.setActualTilesize)
         #self.layerSwitchersGroup = LayerSwitchers(self.mainWindow, self.mainWindow.PROXY.setCurrentLayer)
-        #self.drawGridAction = DrawGridAction(self.mainWindow)
+        self.drawGridAction = DrawGridAction(self.mainWindow)
         #self.drawPassAction = DrawPassAction(self.mainWindow)
         #self.viewScaler = ViewScaler(self.mainWindow)
         self.newAction  = NewProjectAction(self.mainWindow)
@@ -54,11 +54,11 @@ class BarsManager:
         self.menuEdit.addAction(self.redoAction)
         #=============================================
         self.menuScene	= MainMenu('Сцена', self.mainWindow)
-        #self.menuScene.addActions(self.tilesizeSwitchersGroup.actions())
-        #self.menuScene.addSeparator()
+        self.menuScene.addActions(self.tilesizeSwitchersGroup.actions())
+        self.menuScene.addSeparator()
         #self.menuScene.addActions(self.layerSwitchersGroup.actions())
         #self.menuScene.addSeparator()
-        #self.menuScene.addAction(self.drawGridAction)
+        self.menuScene.addAction(self.drawGridAction)
         #self.menuScene.addAction(self.drawPassAction)
         #=============================================
         menuDatabase 	    = MainMenu('База данных', self.mainWindow)
@@ -78,9 +78,10 @@ class BarsManager:
         self.mainWindow.TOOLBAR.addAction(self.undoAction)
         self.mainWindow.TOOLBAR.addAction(self.redoAction)
         self.mainWindow.TOOLBAR.addSeparator()
-        #self.mainWindow.TOOLBAR.addActions(self.tilesizeSwitchersGroup.actions())
+        self.mainWindow.TOOLBAR.addActions(self.tilesizeSwitchersGroup.actions())
+        self.mainWindow.TOOLBAR.addSeparator()
         #self.mainWindow.TOOLBAR.addActions(self.layerSwitchersGroup.actions())
-        #self.mainWindow.TOOLBAR.addAction(self.drawGridAction)
+        self.mainWindow.TOOLBAR.addAction(self.drawGridAction)
         #self.mainWindow.TOOLBAR.addWidget(self.viewScaler)
         #self.mainWindow.TOOLBAR.addAction(self.drawPassAction)
     def setStatusBar(self):

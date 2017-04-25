@@ -15,8 +15,8 @@ class SceneManager(QGraphicsView):
 #==========Методы установки и настройки начального состояния==========
     def setup(self):
         # Метод настройки виджета
-        self.TILESIZE = int(self.mainWindow.CONFIG['EDITOR OPTIONS']['Tilesize'])	    # Базовый размер тайла
-        self.setMinimumSize((self.TILESIZE + 1) * 20, self.TILESIZE * 20 + 5)	# Минимальный размер
+        self.TILESIZE = int(self.mainWindow.CONFIG['EDITOR OPTIONS']['Tilesize'])   # Базовый размер тайла
+        self.setMinimumSize((self.TILESIZE + 1) * 20, self.TILESIZE * 20 + 5)	    # Минимальный размер
         self.PROXY = self.mainWindow.PROXY					# Ссылка на прокси-буфер
         self.sceneBuffer = None                             # Буфер для сцен, куда они помещаются при изменении
         self.setMouseTracking(True)							# Виджет отслеживает положение мыши
@@ -41,13 +41,22 @@ class SceneManager(QGraphicsView):
 #==========Методы изменения состояния сцены и состояния триггеров==========
     def refresh(self):
         # Метод обновления виджета
-        self.update()
+        self.scene().update()
     def setMouseButtonsFlags(self, event):
         # Метод меняет флаги нажатия кнопок мыши
         if event.button() 	== Qt.LeftButton and not self.mouseRightPressed:
             self.mouseLeftPressed = True
         if event.button() 	== Qt.RightButton and not self.mouseLeftPressed:
             self.mouseRightPressed = True
+    def switchDrawGrid(self):
+        # Метод переключения режима отрисовки сетки
+        self.scene().drawFG = not self.scene().drawFG
+        self.refresh()
+    def switchDrawPass(self):
+        # Метод переключения режима отображения проходимости
+        if self.scene().viewMode == 'Passability': self.scene().viewMode = 'Simple'
+        else:														self.scene().viewMode = 'Passability'
+        self.refresh()
     def setScene(self, scene):
         # Переопределяем метод установки новой сцены
         super().setScene(scene)	                                        # Вызываем метод суперкласса

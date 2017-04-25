@@ -39,7 +39,7 @@ class Tileset(QGraphicsScene):
         pen.setColor(Qt.yellow)				# Задаем цвет рамки
         pen.setJoinStyle(Qt.MiterJoin)		# Задаем метод сочленения линий рамки
         painter.setPen(pen)				    # Устанавливаем перо
-        sidesize = self.PROXY.SIZE# Получаем размер актуального тайла
+        sidesize = self.PROXY.SIZE          # Получаем размер актуального тайла
         painter.drawRect(QRect(self.selectorCoords.x()+1,  self.selectorCoords.y()+1,
                                sidesize-2, sidesize-2))# Рисуем рамку
     def setSelectorPosition(self, newPosition):
