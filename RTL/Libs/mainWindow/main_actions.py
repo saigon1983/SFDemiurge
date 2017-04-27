@@ -102,7 +102,7 @@ class DrawGridAction(AbstractAction):
     # Класс действия переключения режима отрисовки сетки
     def __init__(self, mainWindow):
         # Инициализируем через суперкласс
-        super().__init__(mainWindow, mainWindow.SCENE_MANAGER.switchDrawGrid)
+        super().__init__(mainWindow, mainWindow.PROXY.switchDrawGrid)
         # Назначаем иконки
         icon = QIcon()
         icon.addPixmap(QPixmap("RTL\\Images\\Icons\\grid.png"))	# Иконка в неактивном состоянии
@@ -113,7 +113,7 @@ class DrawGridAction(AbstractAction):
         # Делаем кнопку нажимаемой
         self.setCheckable(True)
         # Фиксируем состояние кнопки в зависимости от текущего режима выбранной сцены
-        self.setChecked(mainWindow.SCENE_MANAGER.scene().drawFG)
+        self.setChecked(mainWindow.PROXY.DRAW_GRID)
         # Назначаем комбинацию клавиш для переключения режима
         self.setShortcut(QKeySequence('Ctrl+G'))
 #======== Настройка действия отрисовки карты проходимости сцены========
@@ -121,7 +121,7 @@ class DrawPassAction(AbstractAction):
     # Класс действия переключения режима отрисовки проходимости
     def __init__(self, mainWindow):
         # Инициализируем через суперкласс
-        super().__init__(mainWindow, mainWindow.SCENE_MANAGER.switchDrawPass)
+        super().__init__(mainWindow, mainWindow.PROXY.switchViewMode)
         # Назначаем иконки
         icon = QIcon()
         icon.addPixmap(QPixmap("RTL\\Images\\Icons\\pass.png"))	# Иконка в неактивном состоянии
@@ -132,7 +132,7 @@ class DrawPassAction(AbstractAction):
         # Делаем кнопку нажимаемой
         self.setCheckable(True)
         # Фиксируем состояние кнопки в зависимости от текущего режима выбранной сцены
-        self.setChecked(mainWindow.SCENE_MANAGER.scene().viewMode == 'passability')
+        self.setChecked(mainWindow.PROXY.VIEW_MODE == 'Passability')
         # Назначаем комбинацию клавиш для переключения режима
         self.setShortcut( QKeySequence('Ctrl+P'))
 #======== Настройка основных действий с проектом ========

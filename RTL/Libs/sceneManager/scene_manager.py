@@ -59,17 +59,6 @@ class SceneManager(QGraphicsView):
             self.mouseLeftPressed = True
         if event.button() 	== Qt.RightButton and not self.mouseLeftPressed:
             self.mouseRightPressed = True
-    def switchDrawGrid(self):
-        # Метод переключения режима отрисовки сетки
-        self.scene().drawFG = not self.scene().drawFG
-        self.mainWindow.BARS.updateGridPass(self.scene().viewMode, self.scene().drawFG)
-        self.refresh()
-    def switchDrawPass(self):
-        # Метод переключения режима отображения проходимости
-        if self.scene().viewMode == 'Passability': self.scene().viewMode = 'Simple'
-        else:									   self.scene().viewMode = 'Passability'
-        self.mainWindow.BARS.updateGridPass(self.scene().viewMode, self.scene().drawFG)
-        self.refresh()
     def onChange(self):
         # Слот, вызываемый при изменении сцены. Включает триггер
         if not self.sceneChanged: self.sceneChanged = True
@@ -138,14 +127,14 @@ class SceneManager(QGraphicsView):
         self.mainWindow.BARS.updateUndoRedo()
     def setPreviousScene(self):
         # Метод установки предыдущей сцены, вместо текущей при использовании UNDO
-        if self.pastScenes and self.scene().viewMode == 'Simple':   # Запускаем только, если контейнер предыдущих состояний не пустой
+        if self.pastScenes and self.PROXY.VIEW_MODE == 'Simple':    # Запускаем только, если контейнер предыдущих состояний не пустой
             self.rememberScene()                                    # Сохраняем текущую сцену в будущие сцены
             self.setScene(self.pastScenes.pop())                    # Вытаскиваем последнее состояние из контейнера и устанавливаем его
             self.scene().unsaved()                                  # Уведомляем сцену, что она не сохранена
             self.mainWindow.BARS.updateUndoRedo()
     def setFutureScene(self):
         # Метод установки будущей сцены, вместо текущей при использовании REDO
-        if self.futureScenes and self.scene().viewMode == 'Simple': # Запускаем только, если контейнер будущих состояний не пустой
+        if self.futureScenes and self.PROXY.VIEW_MODE == 'Simple':  # Запускаем только, если контейнер будущих состояний не пустой
             self.pastScenes.append(self.scene().duplicate())        # Сохраняем текущую сцену в прошлые сцены
             self.setScene(self.futureScenes.pop())                  # Вытаскиваем последнее состояние из контейнера и устанавливаем его
             self.scene().unsaved()                                  # Уведомляем сцену, что она не сохранена
@@ -167,14 +156,14 @@ class SceneManager(QGraphicsView):
         if self.scene() and self.mouseInScene(coords):  # Если курсор находится в допустимых координатах и вообще есть сцена
             # Обработка нажатий кнопок мыши для состояния редактирвоания сцены Simple
             self.sceneBuffer = self.scene().duplicate() # Запоминаем текущее состояние в буфер
-            if self.scene().viewMode == 'Simple':
+            if self.PROXY.VIEW_MODE == 'Simple':
                 collideTiles = self.getTilesInRect(coords)  # Получаем список пересекающихся тайлов
                 # Обрабатываем нажатие левой кнопки. По сути, передаем управление методу установки тайла и решения принимает он
                 if self.mouseLeftPressed:                       self.placeTile(coords, collideTiles)
                 # Обрабатываем нажатие правой кнопки мыши. При отсутствии тайлов - пропускаем сигнал нажатия
                 elif self.mouseRightPressed and collideTiles:   self.removeTile(coords, collideTiles)
             # Обработка нажатий в режиме расстановки тайлов
-            elif self.scene().viewMode == 'Passability':
+            elif self.PROXY.VIEW_MODE == 'Passability':
                 x, y = self.mapToCells(coords)  # Фиксируем текущиие коррдинаты курсора
                 index = self.PASSABILITY.index(self.scene().walkMap[x][y]['passability'])#Получаем индекс текущего значения проходимости в выбранной клетке
                 if x != self.xWas or y != self.yWas:	self.setWasCoords(x, y)
@@ -187,14 +176,14 @@ class SceneManager(QGraphicsView):
         if self.mouseLeftPressed or self.mouseRightPressed:	# Если нажата одна из нопок мыши
             coords = self.mapToScene(event.x(),event.y())   # Получаем координаты текущего местоположения курсора мыши
             # Обработка нажатий кнопок мыши для состояния редактирвоания сцены Simple
-            if self.scene().viewMode == 'Simple':
+            if self.PROXY.VIEW_MODE == 'Simple':
                 collideTiles = self.getTilesInRect(coords)  # Получаем список пересекающихся тайлов
                 # Обрабатываем нажатие левой кнопки. По сути, передаем управление методу установки тайла и решения принимает он
                 if self.mouseLeftPressed:                       self.placeTile(coords, collideTiles)
                 # Обрабатываем нажатие правой кнопки мыши. При отсутствии тайлов - пропускаем сигнал нажатия
                 elif self.mouseRightPressed and collideTiles:   self.removeTile(coords, collideTiles)
             # Отработка нажатий в режиме редактирования проходимости
-            elif self.scene().viewMode == 'Passability':
+            elif self.PROXY.VIEW_MODE == 'Passability':
                 x, y = self.mapToCells(coords)  # Фиксируем текущиие коррдинаты курсора
                 index = self.PASSABILITY.index(self.scene().walkMap[x][y]['passability'])#Получаем индекс текущего значения проходимости в выбранной клетке
                 if x != self.xWas or y != self.yWas:

@@ -7,6 +7,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from RTL.Libs.sceneManager.scene_tile import Tile
 
+verticalLine = QPainter()
+
 class SceneModel(QGraphicsScene):
     PASSABILITY = ('Empty','Solid','Hover')	# Список возможных значений проходимости клетки
     tileChanged = pyqtSignal() # Сигнал, оповещающий о том, что тайл был добавлен либо удален
@@ -49,21 +51,7 @@ class SceneModel(QGraphicsScene):
         # Метод размещения тайлов из списка tilelist по сцене
         for tileData in tilelist: self.addItem(Tile.fromTileData(tileData))
     def setTriggers(self, triggers):
-        '''
-		Метод установки триггеров сцены. Триггеры могут быть следующими:
-			viewMode - режим просмотра сцены. Имеет следующие значения:
-				Simple 			- простой режим, позволяющий видеть все объекты так, как они будут видны в игре
-				Passability 	- режим просмотра проходимости сцены
-			drawBG - триггер необходимости отрисовки заднего фона. Имеет положения True или False
-			drawFG - триггер необходимости отрисовки вспомогательной сетки. Имеет положения True или False
-		Если методу не передается какой-либо набор триггеров, они устанавливаются по умолчанию
-		'''
-        try:    self.viewMode   = triggers['viewMode']
-        except: self.viewMode   = 'Simple'  # Режим просмотра сцены
-        try:    self.drawBG     = triggers['drawBG']
-        except: self.drawBG     = True      # Флаг отрисовки заднего фона
-        try:    self.drawFG     = triggers['drawFG']
-        except: self.drawFG     = True      # Флаг отрисовки переднего фона
+        # Метод установки значений по умолчанию триггеров сцены
         self.saved = True   # Флаг сохранности сцены. Значение False означает, что сцена была изменена и изменения не сохранены
     def setPassability(self):
         # Метод установки таблицы проходимости сцены. На этапе отладки программы доступна возможность генерирования
@@ -87,7 +75,7 @@ class SceneModel(QGraphicsScene):
 # ==========Перегруженные методы отрисовки заднего и переднего фонов==========
     def drawBackground(self, back, rect):
         # Метод отрисовки заднего фона
-        if self.drawBG:
+        if self.PROXY.DRAW_BACK:
             sidesizeX  	= self.width()  	                        # Ширина сцены
             sidesizeY 	= self.height() 	                        # Высота сцены
             back.setBrush(Qt.lightGray)  		                    # Фон для всего виджета
@@ -97,8 +85,8 @@ class SceneModel(QGraphicsScene):
     def drawForeground(self, fore, rect):
         # Метод отрисовки переднего фона. Зависит от текущего режима viewMode
         tilesize    = self.TILESIZE # Базовый размер тайла
-        if self.viewMode == 'Simple' and self.drawFG:
-            # Если выбран простой режим отображения и включен триггер отрисовки сетки - рисуем сетку с размером клетки, равным текущему размеру тайла
+        if self.PROXY.VIEW_MODE == 'Simple' and self.PROXY.DRAW_GRID:
+            # Если выбран простой режим отображения и включен триггер отрисовки сетки - рисуем сетку с базовым размером тайла
             fore.setPen(Qt.darkYellow)  # Устанавливаем цвет кисти
             sidesizeX  	= self.width()  # Ширина сцены
             sidesizeY 	= self.height() # Высота сцены
@@ -112,7 +100,7 @@ class SceneModel(QGraphicsScene):
                 for y in range(0, sidesizeY // tilesize):
                     fore.drawLine(x * tilesize, y * tilesize, x * tilesize, y * tilesize + tilesize // 8)
                     fore.drawLine(x * tilesize, y * tilesize + (tilesize // 8) * 7, x * tilesize, (y + 1) * tilesize)
-        elif self.viewMode == 'Passability':
+        elif self.PROXY.VIEW_MODE == 'Passability':
             # Если выбран режим отображения проходимости - сетка не рисуется
             for x in range(1, self.tiles_in_row + 1):
                 for y in range(1, self.tiles_in_col + 1):
@@ -189,9 +177,7 @@ class SceneModel(QGraphicsScene):
         for item  in self.items():
             self.sceneData['Tiles'].append(item.getTileData())
         self.sceneData['Triggers'] = {}
-        self.sceneData['Triggers']['viewMode'] = self.viewMode
-        self.sceneData['Triggers']['drawBG'] = self.drawBG
-        self.sceneData['Triggers']['drawFG'] = self.drawFG
+        # TODO Далее должны следовать различные триггеры, но они пока отсутствуют, т.к. все были вынесены в прокси-буфер
         self.sceneData['WalkMap'] = self.walkMap
         return self.sceneData    # Возвращаем получившийся словарь
     def duplicate(self):
