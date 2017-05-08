@@ -5,7 +5,7 @@ from PyQt4.QtGui import *
 
 class Tile(QGraphicsPixmapItem):
     PASSABILITY = ('Empty','Solid','Hover')		# Список доступных значений проходимости тайла
-    def __init__(self, byteArray, x=0, y=0, z=0, passability = 'Empty', stripIndex = None):
+    def __init__(self, byteArray, x=0, y=0, z=1.0, passability = 'Empty', stripIndex = None):
         self.byteArray = byteArray                          # Сохраняем массив байтов (понадобится длс сравнения)
         super().__init__()                                  # Создаем суперкласс
         pixmap = QPixmap()
@@ -58,5 +58,4 @@ class Tile(QGraphicsPixmapItem):
     def __eq__(self, other):
         # Переопределяем метод сравнения. Два тайла считаются равными, если совпадает их изображение (массив байтов),
         # независимо от координат, высоты и проходимости
-        if self.byteArray == other.byteArray: return True
-        else: return False
+        return self.byteArray == other.byteArray
