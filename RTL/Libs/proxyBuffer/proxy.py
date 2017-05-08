@@ -2,6 +2,8 @@
 Класс ProxyBuffer представляет из себя виртуальный буфер для обмена общей для многих виджетов информацией
 '''
 from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+import math
 
 class ProxyBuffer:
     VIEW_MODES = ('Passability', 'Simple', 'Events')    # Список допустимых значений режима работы со сценой
@@ -13,19 +15,35 @@ class ProxyBuffer:
         self.MAIN = main			# Ссылка на главное окно
         self.CONFIG = main.CONFIG	# Ссылка на объект конфигураций
         self.SCALE = 3				# Текущий уровень масштабирования сцены
-        self.TILE = QByteArray()    # Текущий активный тайл. По умолчанию - пустой массив байтов
+        self.TILE = []              # Текущий активный тайл. По умолчанию - пустой массив
         self.SIZE = int(self.CONFIG['EDITOR OPTIONS']['Tilesize'])# Текущий размер тайла
+        self.BASESIZE = self.SIZE//3# Фиксируем минимальный размер тайла
         self.LAYER = 1.0            # Текущий активный слой
         self.VIEW_MODE = 'Simple'   # Триггер режимов работы со сценой
         self.DRAW_GRID = True       # Триггер отрисовки вспомогательной сетки
         self.DRAW_BACK = True       # Триггер отрисовки заднего фона сцены
 #========== Методы установки атрибутов ==========
-    def setActiveTile(self, pixmap):
+    def setActiveTile(self, pixArray):
         # Метод установки текущего активного тайла
-        buffer = QBuffer(self.TILE)     # Создаем буфер
-        buffer.open(QIODevice.WriteOnly)# Открываем буфер для записи
-        pixmap.save(buffer, 'PNG')      # Сохраняем изображение в массив байтов
-        buffer.close()                  # Закрываем буфер
+        self.TILE.clear()                       # Очищаем массив
+        pixmap = QPixmap(self.SIZE, self.SIZE)  # Создаем прообраз изображения тайла для TILE_VIEWER
+        painter = QPainter(pixmap)              # Включаем рисование на прообразе
+        for pix in pixArray:                    # Запускаем цикл обработки
+            # ====== Заполнение массива массивами данных ======
+            byteArray = QByteArray()            # Задаем массив байтов
+            buffer = QBuffer(byteArray)         # Создаем буфер
+            buffer.open(QIODevice.WriteOnly)    # Открываем буфер для записи
+            pix.save(buffer, 'PNG')             # Сохраняем изображение в массив байтов
+            buffer.close()                      # Закрываем буфер
+            self.TILE.append(byteArray)         # Добавляем байты изображения в массив
+            # ====== Создание отображения тайла ======
+            size    = math.sqrt(len(pixArray))  # Размер стороны квадрата в минимальных тайлах
+            index   = pixArray.index(pix)       # Индекс текущего изображения в массиве изображений
+            x = self.BASESIZE * (index % size)  # Координата x
+            y = self.BASESIZE * (index // size) # Координата y
+            rect = QRect(QPoint(x, y), QSize(self.BASESIZE, self.BASESIZE))     # Определяем координаты прямоугольника
+            painter.drawPixmap(rect, pix, pix.rect())                           # Рисуем рисунок pix на рисунок pixmap
+        painter.end()                           # Выключаем отрисовщик
         self.MAIN.TILE_VIEWER.setPixmap(pixmap.scaled(self.SIZE*2,self.SIZE*2)) # Помещаем изображение в TILE_VIEWER
     def setActualTilesize(self, factor):
         # Метод устанвки текущего активного слоя

@@ -12,7 +12,7 @@ class TileViewer(QLabel):
 	def setup(self):
 		# Метод настройки виджета
 		self.basicTilseSize = int(self.mainWindow.CONFIG['EDITOR OPTIONS']['Tilesize'])	# Базовый размер тайла
-		self.setFixedSize(self.basicTilseSize*2+6, self.basicTilseSize*2+4)						# Настраиваем габариты виджета
-		self.setFrameStyle(QFrame.Panel | QFrame.Sunken)											# Настраиваем стиль виджета
-		self.setMargin(2)																								# Задаем отступы по краям
-		self.setAlignment(Qt.AlignCenter)																		# Центрируем изображение
+		self.setFixedSize(self.basicTilseSize*2+6, self.basicTilseSize*2+4)				# Настраиваем габариты виджета
+		self.setFrameStyle(QFrame.Panel | QFrame.Sunken)								# Настраиваем стиль виджета
+		self.setMargin(2)																# Задаем отступы по краям
+		self.setAlignment(Qt.AlignCenter)												# Центрируем изображение

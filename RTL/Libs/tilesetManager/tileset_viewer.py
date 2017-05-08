@@ -32,6 +32,7 @@ class TilesetViewer(QGraphicsView):
         # Метод установки атрибутов
         self.PROXY = self.scene().PROXY
         self.TILESIZE = self.scene().TILESIZE
+        self.BASESIZE = self.TILESIZE // 3
         self.TILES_IR = int(self.scene().CONFIG['EDITOR OPTIONS']['Tiles_in_row'])	# Ширина виджета в тайлах
         self.TILES_IC = int(self.scene().CONFIG['EDITOR OPTIONS']['Tiles_in_col'])	# Высота видимой части виджета в тайлах
     def setup(self):
@@ -53,9 +54,14 @@ class TilesetViewer(QGraphicsView):
         tilesize    = tilesize
         if coords != QPoint(0, 0): coords = self.scene().selectorCoords # Фиксируем координаты рамки выбора
         if not tilesize: tilesize = self.PROXY.SIZE                     # Получаем актуальный размер тайла
-        tileFrame = QRect(coords, QSize(tilesize, tilesize))           # Объект границ тайла
-        tilePixmap = self.scene().image.copy(tileFrame)                 # Вырезаем изображение тайла согласно заданным границам
-        self.PROXY.setActiveTile(tilePixmap)                            # Передаем изобрадение в прокси-буфер
+        pixAraray = []                                                  # Пустой массив для хранения вырезанных изображений
+        for y in range(0, tilesize, self.BASESIZE):
+            for x in range(0, tilesize, self.BASESIZE):
+                startPoint  = QPoint(coords.x() + x, coords.y() + y)        # Получаем начальные координаты тайла
+                tileFrame   = QRect(startPoint, QSize(self.BASESIZE, self.BASESIZE))  # Объект границ тайла
+                tilePixmap = self.scene().image.copy(tileFrame)             # Вырезаем изображение тайла согласно заданным границам
+                pixAraray.append(tilePixmap)                                # Добавляем изоражение в массив
+        self.PROXY.setActiveTile(pixAraray)                                 # Передаем изображение в прокси-буфер
     def mousePressEvent(self, event):
         # Перегружаем метод реакции на нажатие кнопок мыши. Виджет реагирует только на левую кнопку
         if event.button() == Qt.LeftButton:

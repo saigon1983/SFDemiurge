@@ -1,6 +1,7 @@
 '''
 В этом модуле описан менеджер сцены - виджет, позволяющий выполнять все операции по редактированию сцены
 '''
+import math
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from RTL.Libs.helpFunctions.adjust_to_tilesize import adjustToTilesize
@@ -17,6 +18,7 @@ class SceneManager(QGraphicsView):
     def setup(self):
         # Метод настройки виджета
         self.TILESIZE = int(self.mainWindow.CONFIG['EDITOR OPTIONS']['Tilesize'])   # Базовый размер тайла
+        self.BASESIZE = self.TILESIZE // 3
         self.setMinimumSize((self.TILESIZE + 1) * 20, self.TILESIZE * 20 + 5)	    # Минимальный размер
         self.PROXY = self.mainWindow.PROXY					# Ссылка на прокси-буфер
         self.sceneBuffer = None                             # Буфер для сцен, куда они помещаются при изменении
@@ -83,17 +85,26 @@ class SceneManager(QGraphicsView):
     def placeTile(self, coords, tiles):
         # Метод размещает текущий активный тайл на текущей сцене в координатах coords
         if self.PROXY.TILE: # Размещаем тайл только при наличии этого тайла в буфере
-            pointToPlace = adjustToTilesize(coords, self.PROXY.SIZE)    # Корректируем координаты
-            xyz = (pointToPlace.x(), pointToPlace.y(), self.PROXY.LAYER)# Собираем в кортеж координаты и высоту
-            newTile = Tile(self.PROXY.TILE[:], *xyz)                    # Конструируем тайл
-            # Перебираем тайлы под курсором, и если находим такой же тайл на той же высоте, выходим из метода
-            for tile in tiles:
-                if tile.zValue() == self.PROXY.LAYER and tile == newTile: return
-            # Повторно перебираем тайлы и удаляем те, которые находятся на текущием слое
-            for tile in tiles:
-                if tile.zValue() == self.PROXY.LAYER: self.scene().removeItem(tile)
-            self.futureScenes.clear()       # Очищаем контейнер будущих сцен
-            self.scene().placeTile(newTile) # Передаем тайл сцене
+            newTiles = []
+            for TILE in self.PROXY.TILE:
+                size    = math.sqrt(len(self.PROXY.TILE))
+                index   = self.PROXY.TILE.index(TILE)
+                x = self.BASESIZE * (index % size)  # Координата x
+                y = self.BASESIZE * (index // size) # Координата y
+                pointToPlace = adjustToTilesize(coords, self.PROXY.SIZE)    # Корректируем координаты
+                xyz = (pointToPlace.x() + x, pointToPlace.y() + y, self.PROXY.LAYER)# Собираем в кортеж координаты и высоту
+                newTile = Tile(TILE, *xyz)                    # Конструируем тайл
+                '''
+                # Перебираем тайлы под курсором, и если находим такой же тайл на той же высоте, выходим из метода
+                for tile in tiles:
+                    if tile.zValue() == self.PROXY.LAYER and tile == newTile: continue
+                # Повторно перебираем тайлы и удаляем те, которые находятся на текущием слое
+                for tile in tiles:
+                    if tile.zValue() == self.PROXY.LAYER: self.scene().removeItem(tile)
+                '''
+                newTiles.append(newTile)
+            self.futureScenes.clear()           # Очищаем контейнер будущих сцен
+            self.scene().placeTiles(newTiles)   # Передаем тайлы сцене
     def removeTile(self, coords, tiles):
         # Метод удаления тайлов в текущих координатах
         sameLevelTiles = [tile for tile in tiles if tile.zValue() == self.PROXY.LAYER]

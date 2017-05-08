@@ -145,11 +145,11 @@ class SceneModel(QGraphicsScene):
                         # Во всех остальных случаях выводим сообщение об ошибке
                         raise ValueError('Wrong passability value in cell {}:{}'.format(x, y))
 # ==========Методы получения различных данных==========
-    def placeTile(self, tile):
+    def placeTiles(self, tiles):
         # Метод добавления тайла на сцену
-        self.addItem(tile)      # Добавляем тайл на сцену
-        self.unsaved()          # Сцена изменена
-        self.tileChanged.emit() # Отправляем сообщение
+        for tile in tiles:  self.addItem(tile)  # Добавляем тайл на сцену
+        self.unsaved()                          # Сцена изменена
+        self.tileChanged.emit()                 # Отправляем сообщение
     def removeTile(self, tile):
         # Метод удаления тайла со сцены
         self.removeItem(tile)   # Удаляем тайл со сцены
