@@ -64,6 +64,9 @@ class SceneManager(QGraphicsView):
     def onChange(self):
         # Слот, вызываемый при изменении сцены. Включает триггер
         if not self.sceneChanged: self.sceneChanged = True
+    def activeLayerChanged(self):
+        # Метод смены активного слоя
+        self.scene().activeLayerChanged()
 #========== Методы размещения объектов ==========
     def mouseInScene(self, coords):
         # Метод проверяет, находится ли курсор мыши в активной зоне сцены (можно ли рисовать)

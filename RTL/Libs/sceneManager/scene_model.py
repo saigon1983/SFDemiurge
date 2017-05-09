@@ -157,6 +157,12 @@ class SceneModel(QGraphicsScene):
                     else:
                         # Во всех остальных случаях выводим сообщение об ошибке
                         raise ValueError('Wrong passability value in cell {}:{}'.format(x, y))
+# ==========Методы изменения состояния сцены ==========
+    def activeLayerChanged(self):
+        # Метод реакции на смену активного слоя
+        for layer in self.LAYERS:
+            if layer.zValue == self.PROXY.LAYER:    layer.becomeOpaque()
+            else:                                   layer.becomeTransparent()
 # ==========Методы получения различных данных==========
     def placeTiles(self, tiles):
         # Метод добавления тайла на сцену

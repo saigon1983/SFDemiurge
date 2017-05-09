@@ -17,6 +17,11 @@ class TileGroup:
             self.scene.removeItem(tile)
             del self.layer['{}:{}'.format(int(tile.x()), int(tile.y()))]
         except: return
+    def becomeOpaque(self):
+        # Метод делает все элементы слоя непрозрачными
+        for tile in self.layer.values(): tile.setOpacity(1.0)
+    def becomeTransparent(self):
+        for tile in self.layer.values(): tile.setOpacity(0.2 + self.zValue / 10)
 # Переопределяем некоторые методы, чтобы сделать объект итерируемым
     def __len__(self):
         # Перегруженный метод определения размера набора

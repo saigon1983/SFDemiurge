@@ -55,6 +55,7 @@ class ProxyBuffer:
     def setActiveLayer(self, value):
         # Метод установки текущего активного слоя
         self.LAYER = float(value)
+        self.MAIN.SCENE_MANAGER.activeLayerChanged()
     def setScaleMode(self, value):
         # Метод установки текущего уровня масштабирования сцены
         self.SCALE = value
