@@ -27,7 +27,9 @@ class ProxyBuffer:
     def setActiveTile(self, pixArray):
         # Метод установки текущего активного тайла
         self.TILE.clear()                       # Очищаем массив
+        self.MAIN.TILE_VIEWER.clear()           # Очищаем содержимое TILE_VIEWER
         pixmap = QPixmap(self.SIZE, self.SIZE)  # Создаем прообраз изображения тайла для TILE_VIEWER
+        pixmap.fill(Qt.magenta)                 # Заполняем его магическим цветом
         painter = QPainter(pixmap)              # Включаем рисование на прообразе
         for pix in pixArray:                    # Запускаем цикл обработки
             # ====== Заполнение массива массивами данных ======
@@ -52,7 +54,7 @@ class ProxyBuffer:
         self.MAIN.TILESET_MANAGER.refresh() # Обновляем менеджер тайлсетов
     def setActiveLayer(self, value):
         # Метод установки текущего активного слоя
-        self.LAYER = value
+        self.LAYER = float(value)
     def setScaleMode(self, value):
         # Метод установки текущего уровня масштабирования сцены
         self.SCALE = value

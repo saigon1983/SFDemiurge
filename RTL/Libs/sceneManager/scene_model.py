@@ -6,6 +6,7 @@ from random import choice
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from RTL.Libs.sceneManager.scene_tile import Tile
+from RTL.Libs.sceneManager.scene_group import TileGroup
 
 verticalLine = QPainter()
 
@@ -23,10 +24,11 @@ class SceneModel(QGraphicsScene):
         self.TILESIZE = int(main.CONFIG['EDITOR OPTIONS']['Tilesize'])
         self.setupData(sceneData)       # Устанавливаем переданные данные
         super().__init__(0, 0, float(self.TILESIZE * self.tiles_in_row), float(self.TILESIZE * self.tiles_in_col)) # Конструктор суперкласса
-        self.setupTiles(self.tilelist)      # Расставляем тайлы по сцене, если они есть
-        self.setTriggers(self.triggers)     # Настраиваем триггеры
-        self.setPassability()               # Настраиваем карту проходимости
-        if firstCreation: self.save()       # Создаем файл для сцены в случае, когда сцена не загружена из файла
+        self.setupLayers()              # Метод формирует слои для заполнения тайлами
+        self.setupTiles(self.tilelist)  # Расставляем тайлы по сцене, если они есть
+        self.setTriggers(self.triggers) # Настраиваем триггеры
+        self.setPassability()           # Настраиваем карту проходимости
+        if firstCreation: self.save()   # Создаем файл для сцены в случае, когда сцена не загружена из файла
 # ==========Перегруженные методы доступа к атрибутам сцены==========
     def width(self):		return int(super().width())
     def height(self):		return int(super().height())
@@ -47,9 +49,21 @@ class SceneModel(QGraphicsScene):
         except: self.triggers   = {}
         try: self.walkMap       = self.sceneData['WalkMap']      # Карта проходимости в виде словаря
         except: self.walkMap    = {}
+    def setupLayers(self):
+        # Метод создает 6 слоев для различных нужд
+        self.LAYERS = [TileGroup(self, 0.0),    # Слой 0 - для расположения событийных объектов
+                       TileGroup(self, 1.0),    # Слой 1 - для основных наземных объектов, вроде травы, песка, воды
+                       TileGroup(self, 2.0),    # Слой 2 - для вторичных наземных объектов, вроде леса, гор, стен, заборов
+                       TileGroup(self, 3.0),    # Слой 3 - для объектов, находящихся над персонажами, в частности для крыш
+                       TileGroup(self, 4.0),    # Слой 4 - для самых высоко расположенных объектов, вроде верхушек деревьев
+                       TileGroup(self, 5.0)]    # Слой 5 - для отрисовки погодных условий, например снега или дождя
     def setupTiles(self, tilelist):
         # Метод размещения тайлов из списка tilelist по сцене
-        for tileData in tilelist: self.addItem(Tile.fromTileData(tileData))
+        for tileData in tilelist:
+            tile = Tile.fromTileData(tileData)
+            tile.setParentItem(None)
+            print(tile.zValue())
+            self.LAYERS[int(tile.zValue())].append(tile)
     def setTriggers(self, triggers):
         # Метод установки значений по умолчанию триггеров сцены
         self.saved = True   # Флаг сохранности сцены. Значение False означает, что сцена была изменена и изменения не сохранены
@@ -148,14 +162,15 @@ class SceneModel(QGraphicsScene):
     def placeTiles(self, tiles):
         # Метод добавления тайла на сцену
         if tiles:
-            for tile in tiles:  self.addItem(tile)  # Добавляем тайл на сцену
-            self.unsaved()                          # Сцена изменена
-            self.tileChanged.emit()                 # Отправляем сообщение
+            for tile in tiles:
+                self.LAYERS[int(tile.zValue())].append(tile)# Добавляем тайл на сцену
+            self.unsaved()                                  # Сцена изменена
+            self.tileChanged.emit()                         # Отправляем сообщение
     def removeTile(self, tile):
         # Метод удаления тайла со сцены
-        self.removeItem(tile)   # Удаляем тайл со сцены
-        self.unsaved()          # Сцена изменена
-        self.tileChanged.emit() # Отправляем сообщение
+        self.LAYERS[int(tile.zValue())].remove(tile)# Удаляем тайл со сцены
+        self.unsaved()                              # Сцена изменена
+        self.tileChanged.emit()                     # Отправляем сообщение
     def unsaved(self):
         # Метод-уведомление, что сцена изменена
         self.saved = False                  # Устанавливаем флаг сохранности в положение False

@@ -82,30 +82,32 @@ class SceneManager(QGraphicsView):
         if self.mouseRightPressed:	index -= 1
         if self.mouseLeftPressed: 	index += 1
         return index
-    def placeTile(self, coords, tiles):
+    def placeTile(self, coords):
         # Метод размещает текущий активный тайл на текущей сцене в координатах coords
         if self.PROXY.TILE: # Размещаем тайл только при наличии этого тайла в буфере
             newTiles    = []
+            currentLayer = self.scene().LAYERS[int(self.PROXY.LAYER)]
             for TILE in self.PROXY.TILE:
                 pointToPlace = adjustToTilesize(coords, self.PROXY.SIZE)# Корректируем координаты
                 curX = TILE.x() + pointToPlace.x()
                 curY = TILE.y() + pointToPlace.y()
-                tilesInPlace = self.scene().items(QRectF(QPoint(curX, curY), QSizeF(self.BASESIZE, self.BASESIZE)))
-                if tilesInPlace:
-                    for tile in tilesInPlace:
-                        if tile.zValue() == TILE.zValue():
-                            if tile != TILE:
-                                self.scene().removeItem(tile)
-                                newTiles.append(TILE.duplicate(curX, curY))
-                else:   newTiles.append(TILE.duplicate(curX, curY))
+                oldTile = currentLayer['{}:{}'.format(int(curX),int(curY))]
+                if oldTile:
+                    if oldTile != TILE:
+                        currentLayer.remove(oldTile)
+                        newTiles.append(TILE.duplicate(curX, curY, self.PROXY.LAYER))
+                else:   newTiles.append(TILE.duplicate(curX, curY, self.PROXY.LAYER))
             self.futureScenes.clear()           # Очищаем контейнер будущих сцен
             self.scene().placeTiles(newTiles)   # Передаем тайлы сцене
     def removeTile(self, coords, tiles):
         # Метод удаления тайлов в текущих координатах
-        sameLevelTiles = [tile for tile in tiles if tile.zValue() == self.PROXY.LAYER]
-        if sameLevelTiles:
-            for tile in sameLevelTiles:
-                if tile.zValue() == self.PROXY.LAYER: self.scene().removeTile(tile)
+        currentLayer    = self.scene().LAYERS[int(self.PROXY.LAYER)]# Текущий слой
+        print(len(currentLayer))
+        pointToRemove   = adjustToTilesize(coords, self.PROXY.SIZE) # Корректируем координаты
+        for y in range(0, self.PROXY.SIZE, self.BASESIZE):
+            for x in range(0, self.PROXY.SIZE, self.BASESIZE):
+                tile = currentLayer['{}:{}'.format(pointToRemove.x() + x, pointToRemove.y() + y)]
+                if tile: currentLayer.remove(tile)
         self.futureScenes.clear()       # Очищаем контейнер будущих сцен
 #========== Методы преобразовния величин и проверок состояния ==========
     def mapToCells(self, coords):
@@ -165,7 +167,7 @@ class SceneManager(QGraphicsView):
             if self.PROXY.VIEW_MODE == 'Simple':
                 collideTiles = self.getTilesInRect(coords)  # Получаем список пересекающихся тайлов
                 # Обрабатываем нажатие левой кнопки. По сути, передаем управление методу установки тайла и решения принимает он
-                if self.mouseLeftPressed:                       self.placeTile(coords, collideTiles)
+                if self.mouseLeftPressed:                       self.placeTile(coords)
                 # Обрабатываем нажатие правой кнопки мыши. При отсутствии тайлов - пропускаем сигнал нажатия
                 elif self.mouseRightPressed and collideTiles:   self.removeTile(coords, collideTiles)
             # Обработка нажатий в режиме расстановки тайлов
@@ -185,7 +187,7 @@ class SceneManager(QGraphicsView):
             if self.PROXY.VIEW_MODE == 'Simple':
                 collideTiles = self.getTilesInRect(coords)  # Получаем список пересекающихся тайлов
                 # Обрабатываем нажатие левой кнопки. По сути, передаем управление методу установки тайла и решения принимает он
-                if self.mouseLeftPressed:                       self.placeTile(coords, collideTiles)
+                if self.mouseLeftPressed:                       self.placeTile(coords)
                 # Обрабатываем нажатие правой кнопки мыши. При отсутствии тайлов - пропускаем сигнал нажатия
                 elif self.mouseRightPressed and collideTiles:   self.removeTile(coords, collideTiles)
             # Отработка нажатий в режиме редактирования проходимости
