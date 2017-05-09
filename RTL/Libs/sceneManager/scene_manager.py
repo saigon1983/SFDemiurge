@@ -99,10 +99,9 @@ class SceneManager(QGraphicsView):
                 else:   newTiles.append(TILE.duplicate(curX, curY, self.PROXY.LAYER))
             self.futureScenes.clear()           # Очищаем контейнер будущих сцен
             self.scene().placeTiles(newTiles)   # Передаем тайлы сцене
-    def removeTile(self, coords, tiles):
+    def removeTile(self, coords):
         # Метод удаления тайлов в текущих координатах
         currentLayer    = self.scene().LAYERS[int(self.PROXY.LAYER)]# Текущий слой
-        print(len(currentLayer))
         pointToRemove   = adjustToTilesize(coords, self.PROXY.SIZE) # Корректируем координаты
         for y in range(0, self.PROXY.SIZE, self.BASESIZE):
             for x in range(0, self.PROXY.SIZE, self.BASESIZE):
@@ -165,11 +164,9 @@ class SceneManager(QGraphicsView):
             # Обработка нажатий кнопок мыши для состояния редактирвоания сцены Simple
             self.sceneBuffer = self.scene().duplicate() # Запоминаем текущее состояние в буфер
             if self.PROXY.VIEW_MODE == 'Simple':
-                collideTiles = self.getTilesInRect(coords)  # Получаем список пересекающихся тайлов
                 # Обрабатываем нажатие левой кнопки. По сути, передаем управление методу установки тайла и решения принимает он
-                if self.mouseLeftPressed:                       self.placeTile(coords)
-                # Обрабатываем нажатие правой кнопки мыши. При отсутствии тайлов - пропускаем сигнал нажатия
-                elif self.mouseRightPressed and collideTiles:   self.removeTile(coords, collideTiles)
+                if self.mouseLeftPressed:       self.placeTile(coords)
+                elif self.mouseRightPressed:    self.removeTile(coords)
             # Обработка нажатий в режиме расстановки тайлов
             elif self.PROXY.VIEW_MODE == 'Passability':
                 x, y = self.mapToCells(coords)  # Фиксируем текущиие коррдинаты курсора
@@ -185,11 +182,9 @@ class SceneManager(QGraphicsView):
             coords = self.mapToScene(event.x(),event.y())   # Получаем координаты текущего местоположения курсора мыши
             # Обработка нажатий кнопок мыши для состояния редактирвоания сцены Simple
             if self.PROXY.VIEW_MODE == 'Simple':
-                collideTiles = self.getTilesInRect(coords)  # Получаем список пересекающихся тайлов
                 # Обрабатываем нажатие левой кнопки. По сути, передаем управление методу установки тайла и решения принимает он
-                if self.mouseLeftPressed:                       self.placeTile(coords)
-                # Обрабатываем нажатие правой кнопки мыши. При отсутствии тайлов - пропускаем сигнал нажатия
-                elif self.mouseRightPressed and collideTiles:   self.removeTile(coords, collideTiles)
+                if self.mouseLeftPressed:       self.placeTile(coords)
+                elif self.mouseRightPressed:    self.removeTile(coords)
             # Отработка нажатий в режиме редактирования проходимости
             elif self.PROXY.VIEW_MODE == 'Passability':
                 x, y = self.mapToCells(coords)  # Фиксируем текущиие коррдинаты курсора

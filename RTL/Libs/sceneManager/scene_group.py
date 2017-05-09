@@ -14,9 +14,8 @@ class TileGroup:
     def remove(self, tile):
         # Метод удаления тайла из набора. Если такого тайла в наборе нет, ничего не происходит
         try:
-            if tile == self.layer['{}:{}'.format(int(tile.x()), int(tile.y()))]:
-                self.scene.removeItem(tile)
-                del self.layer[int(tile.x())][int(tile.y())]
+            self.scene.removeItem(tile)
+            del self.layer['{}:{}'.format(int(tile.x()), int(tile.y()))]
         except: return
 # Переопределяем некоторые методы, чтобы сделать объект итерируемым
     def __len__(self):

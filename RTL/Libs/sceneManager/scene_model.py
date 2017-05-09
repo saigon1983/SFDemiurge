@@ -62,7 +62,6 @@ class SceneModel(QGraphicsScene):
         for tileData in tilelist:
             tile = Tile.fromTileData(tileData)
             tile.setParentItem(None)
-            print(tile.zValue())
             self.LAYERS[int(tile.zValue())].append(tile)
     def setTriggers(self, triggers):
         # Метод установки значений по умолчанию триггеров сцены
