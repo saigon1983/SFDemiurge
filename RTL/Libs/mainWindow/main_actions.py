@@ -41,6 +41,7 @@ class TilesizeSwitchers(QActionGroup):
         super().__init__(mainWindow)
         # Создаем группу действий (в данном случае из двух элементов)
         actions = (SetTilesizeAction(mainWindow, slot, 1),
+                   SetTilesizeAction(mainWindow, slot, 2),
                    SetTilesizeAction(mainWindow, slot, 3))
         # Назначем активным по умолчанию последнее действие
         actions[-1].setChecked(True)

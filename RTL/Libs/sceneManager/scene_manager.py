@@ -85,24 +85,19 @@ class SceneManager(QGraphicsView):
     def placeTile(self, coords, tiles):
         # Метод размещает текущий активный тайл на текущей сцене в координатах coords
         if self.PROXY.TILE: # Размещаем тайл только при наличии этого тайла в буфере
-            newTiles = []
+            newTiles    = []
             for TILE in self.PROXY.TILE:
-                size    = math.sqrt(len(self.PROXY.TILE))
-                index   = self.PROXY.TILE.index(TILE)
-                x = self.BASESIZE * (index % size)  # Координата x
-                y = self.BASESIZE * (index // size) # Координата y
-                pointToPlace = adjustToTilesize(coords, self.PROXY.SIZE)    # Корректируем координаты
-                xyz = (pointToPlace.x() + x, pointToPlace.y() + y, self.PROXY.LAYER)# Собираем в кортеж координаты и высоту
-                newTile = Tile(TILE, *xyz)                    # Конструируем тайл
-                '''
-                # Перебираем тайлы под курсором, и если находим такой же тайл на той же высоте, выходим из метода
-                for tile in tiles:
-                    if tile.zValue() == self.PROXY.LAYER and tile == newTile: continue
-                # Повторно перебираем тайлы и удаляем те, которые находятся на текущием слое
-                for tile in tiles:
-                    if tile.zValue() == self.PROXY.LAYER: self.scene().removeItem(tile)
-                '''
-                newTiles.append(newTile)
+                pointToPlace = adjustToTilesize(coords, self.PROXY.SIZE)# Корректируем координаты
+                curX = TILE.x() + pointToPlace.x()
+                curY = TILE.y() + pointToPlace.y()
+                tilesInPlace = self.scene().items(QRectF(QPoint(curX, curY), QSizeF(self.BASESIZE, self.BASESIZE)))
+                if tilesInPlace:
+                    for tile in tilesInPlace:
+                        if tile.zValue() == TILE.zValue():
+                            if tile != TILE:
+                                self.scene().removeItem(tile)
+                                newTiles.append(TILE.duplicate(curX, curY))
+                else:   newTiles.append(TILE.duplicate(curX, curY))
             self.futureScenes.clear()           # Очищаем контейнер будущих сцен
             self.scene().placeTiles(newTiles)   # Передаем тайлы сцене
     def removeTile(self, coords, tiles):

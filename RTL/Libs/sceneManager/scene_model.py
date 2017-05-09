@@ -147,9 +147,10 @@ class SceneModel(QGraphicsScene):
 # ==========Методы получения различных данных==========
     def placeTiles(self, tiles):
         # Метод добавления тайла на сцену
-        for tile in tiles:  self.addItem(tile)  # Добавляем тайл на сцену
-        self.unsaved()                          # Сцена изменена
-        self.tileChanged.emit()                 # Отправляем сообщение
+        if tiles:
+            for tile in tiles:  self.addItem(tile)  # Добавляем тайл на сцену
+            self.unsaved()                          # Сцена изменена
+            self.tileChanged.emit()                 # Отправляем сообщение
     def removeTile(self, tile):
         # Метод удаления тайла со сцены
         self.removeItem(tile)   # Удаляем тайл со сцены

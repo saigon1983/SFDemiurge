@@ -3,6 +3,7 @@
 '''
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from RTL.Libs.sceneManager.scene_tile import Tile
 import math
 
 class ProxyBuffer:
@@ -35,7 +36,6 @@ class ProxyBuffer:
             buffer.open(QIODevice.WriteOnly)    # Открываем буфер для записи
             pix.save(buffer, 'PNG')             # Сохраняем изображение в массив байтов
             buffer.close()                      # Закрываем буфер
-            self.TILE.append(byteArray)         # Добавляем байты изображения в массив
             # ====== Создание отображения тайла ======
             size    = math.sqrt(len(pixArray))  # Размер стороны квадрата в минимальных тайлах
             index   = pixArray.index(pix)       # Индекс текущего изображения в массиве изображений
@@ -43,6 +43,7 @@ class ProxyBuffer:
             y = self.BASESIZE * (index // size) # Координата y
             rect = QRect(QPoint(x, y), QSize(self.BASESIZE, self.BASESIZE))     # Определяем координаты прямоугольника
             painter.drawPixmap(rect, pix, pix.rect())                           # Рисуем рисунок pix на рисунок pixmap
+            self.TILE.append(Tile(byteArray, x, y))                             # Добавляем тайл в массив
         painter.end()                           # Выключаем отрисовщик
         self.MAIN.TILE_VIEWER.setPixmap(pixmap.scaled(self.SIZE*2,self.SIZE*2)) # Помещаем изображение в TILE_VIEWER
     def setActualTilesize(self, factor):
