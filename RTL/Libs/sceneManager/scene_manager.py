@@ -68,6 +68,9 @@ class SceneManager(QGraphicsView):
         # Метод смены активного слоя
         self.scene().activeLayerChanged()
 #========== Методы размещения объектов ==========
+    def drawForeground(self, fore, rect):
+        pos = self.mapFromGlobal(QCursor.pos())
+        self.scene().drawForeground(fore, rect, pos)
     def mouseInScene(self, coords):
         # Метод проверяет, находится ли курсор мыши в активной зоне сцены (можно ли рисовать)
         if coords.x() >= 0 and coords.y() >= 0 and coords.x() < self.scene().width() and coords.y() < self.scene().height(): return True

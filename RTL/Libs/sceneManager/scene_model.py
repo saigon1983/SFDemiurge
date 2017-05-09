@@ -7,6 +7,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from RTL.Libs.sceneManager.scene_tile import Tile
 from RTL.Libs.sceneManager.scene_group import TileGroup
+from RTL.Libs.helpFunctions.adjust_to_tilesize import adjustToTilesize
 
 verticalLine = QPainter()
 
@@ -95,7 +96,7 @@ class SceneModel(QGraphicsScene):
             back.drawRect(0, 0, sidesizeX + 7000, sidesizeY + 5000) # Отрисовка внешнего фона
             back.setBrush(Qt.darkBlue)       	                    # Фон, занимающий только саму карту
             back.drawRect(0, 0, sidesizeX, sidesizeY) 	            # Отрисовка фона выбранного размера локации
-    def drawForeground(self, fore, rect):
+    def drawForeground(self, fore, rect, pos):
         # Метод отрисовки переднего фона. Зависит от текущего режима viewMode
         tilesize    = self.TILESIZE # Базовый размер тайла
         if self.PROXY.VIEW_MODE == 'Simple' and self.PROXY.DRAW_GRID:
@@ -157,6 +158,13 @@ class SceneModel(QGraphicsScene):
                     else:
                         # Во всех остальных случаях выводим сообщение об ошибке
                         raise ValueError('Wrong passability value in cell {}:{}'.format(x, y))
+        pen = QPen()
+        pen.setWidth(5)
+        pen.setColor(Qt.red)
+        fore.setPen(pen)
+        leftUpper = adjustToTilesize(pos, self.PROXY.SIZE)
+        frameSize = QSize(self.PROXY.SIZE, self.PROXY.SIZE)
+        fore.drawRect(QRect(leftUpper, frameSize))
 # ==========Методы изменения состояния сцены ==========
     def activeLayerChanged(self):
         # Метод реакции на смену активного слоя
