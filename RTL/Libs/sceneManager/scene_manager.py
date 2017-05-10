@@ -47,6 +47,11 @@ class SceneManager(QGraphicsView):
         self.mainWindow.TILESET_SELECTOR.setCurrentIndex(index)         # Автоматически настраиваем виджет на отображение базового тайлсета
         self.scene().tileChanged.connect(self.onChange)                 # Соединяем сигнал об изменении сцены с слотом
         self.sceneChanged = False                                       # Отключаем триггер изменения сцены
+        self.setSceneCursor()                                           # Корректируем курсор
+    def setSceneCursor(self):
+        # Метод установки верных размера и положения рамки курсора
+        self.scene().CURSOR.setFrame(self.PROXY.SIZE)
+        self.scene().CURSOR.move(self.mapToScene(self.mapFromGlobal(QCursor.pos())), self.PROXY.SIZE)
     def scaleChange(self):
         # Метод смены масштабирования
         delta = [0.25, 0.5, 1, 2, 4][self.PROXY.SCALE] 				# Выбираем масштаб в зависимости от положения ползунка масштабирования
@@ -54,7 +59,7 @@ class SceneManager(QGraphicsView):
 #==========Методы изменения состояния сцены и состояния триггеров==========
     def refresh(self):
         # Метод обновления виджета
-        self.scene().update()
+        self.scene().refresh()
     def setMouseButtonsFlags(self, event):
         # Метод меняет флаги нажатия кнопок мыши
         if event.button() 	== Qt.LeftButton and not self.mouseRightPressed:
@@ -69,7 +74,7 @@ class SceneManager(QGraphicsView):
         self.scene().activeLayerChanged()
 #========== Методы размещения объектов ==========
     def drawForeground(self, fore, rect):
-        pos = self.mapFromGlobal(QCursor.pos())
+        pos = self.mapToScene(self.mapFromGlobal(QCursor.pos()))
         self.scene().drawForeground(fore, rect, pos)
     def mouseInScene(self, coords):
         # Метод проверяет, находится ли курсор мыши в активной зоне сцены (можно ли рисовать)
@@ -156,11 +161,13 @@ class SceneManager(QGraphicsView):
     def enterEvent(self, event):
         # Перехватываем события входа курсора мыши в зону виджета
         self.mouseOverWidget   = True   # Фиксируем, переключая триггер
+        if not self.scene().CURSOR.scene(): self.scene().addItem(self.scene().CURSOR)
         return super().enterEvent(event)
     def leaveEvent(self, event):
         # Перехватываем события выхода курсора мыши из зоны виджета
         self.mouseOverWidget   = False  # Выключаем триггер
         self.mainWindow.STATUSBAR.clearMessage()  # Очищаем строку состояния
+        self.scene().removeItem(self.scene().CURSOR)
         return super().leaveEvent(event)
     def mousePressEvent(self, event):
         # Метод обработки события нажатия кнопок мыши
@@ -184,8 +191,9 @@ class SceneManager(QGraphicsView):
     def mouseMoveEvent(self, event):
         # Метод обработки движения мыши над виджетом
         self.showMousePosition(event)	# Выводим координаты текущей клетки под курсором в строку состояния
-        if self.mouseLeftPressed or self.mouseRightPressed:	# Если нажата одна из нопок мыши
-            coords = self.mapToScene(event.x(),event.y())   # Получаем координаты текущего местоположения курсора мыши
+        coords = self.mapToScene(event.x(),event.y())   # Получаем координаты текущего местоположения курсора мыши
+        self.scene().CURSOR.move(coords, self.PROXY.SIZE)
+        if self.mouseLeftPressed or self.mouseRightPressed:	# Если нажата одна из кнопок мыши
             # Обработка нажатий кнопок мыши для состояния редактирвоания сцены Simple
             if self.PROXY.VIEW_MODE == 'Simple':
                 # Обрабатываем нажатие левой кнопки. По сути, передаем управление методу установки тайла и решения принимает он

@@ -8,6 +8,7 @@ from PyQt4.QtCore import *
 from RTL.Libs.sceneManager.scene_tile import Tile
 from RTL.Libs.sceneManager.scene_group import TileGroup
 from RTL.Libs.helpFunctions.adjust_to_tilesize import adjustToTilesize
+from RTL.Libs.sceneManager.scene_cursor import FrameCursor
 
 verticalLine = QPainter()
 
@@ -26,6 +27,7 @@ class SceneModel(QGraphicsScene):
         self.setupData(sceneData)       # Устанавливаем переданные данные
         super().__init__(0, 0, float(self.TILESIZE * self.tiles_in_row), float(self.TILESIZE * self.tiles_in_col)) # Конструктор суперкласса
         self.setupLayers()              # Метод формирует слои для заполнения тайлами
+        self.setupCursor()
         self.setupTiles(self.tilelist)  # Расставляем тайлы по сцене, если они есть
         self.setTriggers(self.triggers) # Настраиваем триггеры
         self.setPassability()           # Настраиваем карту проходимости
@@ -58,6 +60,11 @@ class SceneModel(QGraphicsScene):
                        TileGroup(self, 3.0),    # Слой 3 - для объектов, находящихся над персонажами, в частности для крыш
                        TileGroup(self, 4.0),    # Слой 4 - для самых высоко расположенных объектов, вроде верхушек деревьев
                        TileGroup(self, 5.0)]    # Слой 5 - для отрисовки погодных условий, например снега или дождя
+    def setupCursor(self):
+        # Метод установки курсора (рамки)
+        self.CURSOR = FrameCursor()
+        self.CURSOR.setFrame(self.PROXY.SIZE)
+        if not self.CURSOR.scene(): self.addItem(self.CURSOR)
     def setupTiles(self, tilelist):
         # Метод размещения тайлов из списка tilelist по сцене
         for tileData in tilelist:
@@ -87,6 +94,10 @@ class SceneModel(QGraphicsScene):
             sceneFile.close()
             self.save()
 # ==========Перегруженные методы отрисовки заднего и переднего фонов==========
+    def refresh(self):
+        # Метод обновления сцены
+        self.CURSOR.setFrame(self.PROXY.SIZE)
+        self.update()
     def drawBackground(self, back, rect):
         # Метод отрисовки заднего фона
         if self.PROXY.DRAW_BACK:
@@ -158,13 +169,6 @@ class SceneModel(QGraphicsScene):
                     else:
                         # Во всех остальных случаях выводим сообщение об ошибке
                         raise ValueError('Wrong passability value in cell {}:{}'.format(x, y))
-        pen = QPen()
-        pen.setWidth(5)
-        pen.setColor(Qt.red)
-        fore.setPen(pen)
-        leftUpper = adjustToTilesize(pos, self.PROXY.SIZE)
-        frameSize = QSize(self.PROXY.SIZE, self.PROXY.SIZE)
-        fore.drawRect(QRect(leftUpper, frameSize))
 # ==========Методы изменения состояния сцены ==========
     def activeLayerChanged(self):
         # Метод реакции на смену активного слоя
@@ -181,9 +185,9 @@ class SceneModel(QGraphicsScene):
             self.tileChanged.emit()                         # Отправляем сообщение
     def removeTile(self, tile):
         # Метод удаления тайла со сцены
-        self.LAYERS[int(tile.zValue())].remove(tile)# Удаляем тайл со сцены
-        self.unsaved()                              # Сцена изменена
-        self.tileChanged.emit()                     # Отправляем сообщение
+        self.removeItem(tile)   # Удаляем тайл со сцены
+        self.unsaved()          # Сцена изменена
+        self.tileChanged.emit() # Отправляем сообщение
     def unsaved(self):
         # Метод-уведомление, что сцена изменена
         self.saved = False                  # Устанавливаем флаг сохранности в положение False
@@ -204,7 +208,7 @@ class SceneModel(QGraphicsScene):
         self.sceneData['MainTileset'] = self.tileset
         self.sceneData['Tiles'] = []
         for item  in self.items():
-            self.sceneData['Tiles'].append(item.getTileData())
+            if type(item) != FrameCursor: self.sceneData['Tiles'].append(item.getTileData())
         self.sceneData['Triggers'] = {}
         # TODO Далее должны следовать различные триггеры, но они пока отсутствуют, т.к. все были вынесены в прокси-буфер
         self.sceneData['WalkMap'] = self.walkMap

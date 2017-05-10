@@ -14,7 +14,7 @@ class TileGroup:
     def remove(self, tile):
         # Метод удаления тайла из набора. Если такого тайла в наборе нет, ничего не происходит
         try:
-            self.scene.removeItem(tile)
+            self.scene.removeTile(tile)
             del self.layer['{}:{}'.format(int(tile.x()), int(tile.y()))]
         except: return
     def becomeOpaque(self):

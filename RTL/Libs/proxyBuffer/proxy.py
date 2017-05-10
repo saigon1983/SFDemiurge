@@ -52,6 +52,7 @@ class ProxyBuffer:
         # Метод устанвки текущего активного слоя
         self.SIZE = int(self.CONFIG['EDITOR OPTIONS']['Tilesize'])//3*factor
         self.MAIN.TILESET_MANAGER.refresh() # Обновляем менеджер тайлсетов
+        self.MAIN.SCENE_MANAGER.refresh()
     def setActiveLayer(self, value):
         # Метод установки текущего активного слоя
         self.LAYER = float(value)
