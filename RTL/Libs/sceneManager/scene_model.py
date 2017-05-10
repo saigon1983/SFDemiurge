@@ -31,6 +31,7 @@ class SceneModel(QGraphicsScene):
         self.setupTiles(self.tilelist)  # Расставляем тайлы по сцене, если они есть
         self.setTriggers(self.triggers) # Настраиваем триггеры
         self.setPassability()           # Настраиваем карту проходимости
+        self.activeLayerChanged()
         if firstCreation: self.save()   # Создаем файл для сцены в случае, когда сцена не загружена из файла
 # ==========Перегруженные методы доступа к атрибутам сцены==========
     def width(self):		return int(super().width())
@@ -69,7 +70,6 @@ class SceneModel(QGraphicsScene):
         # Метод размещения тайлов из списка tilelist по сцене
         for tileData in tilelist:
             tile = Tile.fromTileData(tileData)
-            tile.setParentItem(None)
             self.LAYERS[int(tile.zValue())].append(tile)
     def setTriggers(self, triggers):
         # Метод установки значений по умолчанию триггеров сцены
@@ -107,7 +107,7 @@ class SceneModel(QGraphicsScene):
             back.drawRect(0, 0, sidesizeX + 7000, sidesizeY + 5000) # Отрисовка внешнего фона
             back.setBrush(Qt.darkBlue)       	                    # Фон, занимающий только саму карту
             back.drawRect(0, 0, sidesizeX, sidesizeY) 	            # Отрисовка фона выбранного размера локации
-    def drawForeground(self, fore, rect, pos):
+    def drawForeground(self, fore, rect):
         # Метод отрисовки переднего фона. Зависит от текущего режима viewMode
         tilesize    = self.TILESIZE # Базовый размер тайла
         if self.PROXY.VIEW_MODE == 'Simple' and self.PROXY.DRAW_GRID:
@@ -173,8 +173,14 @@ class SceneModel(QGraphicsScene):
     def activeLayerChanged(self):
         # Метод реакции на смену активного слоя
         for layer in self.LAYERS:
-            if layer.zValue == self.PROXY.LAYER:    layer.becomeOpaque()
-            else:                                   layer.becomeTransparent()
+            if   self.PROXY.DRAW_MODE == 'Whole':
+                layer.becomeOpaque()
+            elif self.PROXY.DRAW_MODE == 'Active':
+                if layer.zValue == self.PROXY.LAYER:    layer.becomeOpaque()
+                else:                                   layer.becomeInvisible()
+            elif self.PROXY.DRAW_MODE == 'Transparent':
+                if layer.zValue == self.PROXY.LAYER:    layer.becomeOpaque()
+                else:                                   layer.becomeTransparent()
 # ==========Методы получения различных данных==========
     def placeTiles(self, tiles):
         # Метод добавления тайла на сцену

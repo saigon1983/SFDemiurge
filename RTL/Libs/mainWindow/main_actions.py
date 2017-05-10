@@ -82,6 +82,39 @@ class LayerSwitchers(QActionGroup):
         for action in actions:	self.addAction(action)
         # Делаем возможным выбор только одного из действий в группе
         self.setExclusive(True)
+#======== Настройка действий по выбору типа отображения слоев ========
+class SetLayersVisibility(AbstractAction):
+    # Класс действий по смене отображения слоев сцены
+    def __init__(self, mainWindow, slot, value):
+        # Инициализируем через суперкласс
+        super().__init__(mainWindow, slot, value)
+        icon = QIcon()
+        icon.addPixmap(QPixmap("RTL\\Images\\Icons\\mode{}.png".format(value)))	# Иконка в неактивном состоянии
+        icon.addPixmap(QPixmap("RTL\\Images\\Icons\\mode{}A.png".format(value)), QIcon.Normal, QIcon.On)	# Иконка в активном состоянии
+        self.setIcon(icon)
+        # Устанавливаем текст для отображения в главном меню приложения
+        text = ''
+        if value == 'W':    text = 'Режим полного отображения сцены'
+        elif value == 'A':  text = 'Режим отображения только активного слоя'
+        elif value == 'T':  text = 'Режим частичного отображения неактивных слоев'
+        self.setText(text)
+        # Делаем кнопку нажимаемой
+        self.setCheckable(True)
+class LayersVisibilitySwitchers(QActionGroup):
+    # Вспомогательный класс, определяющий группу переключателей режима отображения слоев сцены
+    def __init__(self, mainWindow, slot):
+        # Инициализируем через суперкласс
+        super().__init__(mainWindow)
+        # Создаем группу действий (в данном случае из трех элементов)
+        actions = (SetLayersVisibility(mainWindow, slot, 'W'),
+                   SetLayersVisibility(mainWindow, slot, 'T'),
+                   SetLayersVisibility(mainWindow, slot, 'A'))
+        # Назначем активным по умолчанию первое действие
+        actions[0].setChecked(True)
+        # Подключаем действия к общей группе
+        for action in actions:	self.addAction(action)
+        # Делаем возможным выбор только одного из действий в группе
+        self.setExclusive(True)
 #======== Настройка ползунка масштабирования сцены========
 class ViewScaler(QSlider):
     # Виджет изменения масштаба отображения сцены

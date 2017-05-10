@@ -23,6 +23,7 @@ class BarsManager:
         # Метод настройки доступных действий QAction
         self.tilesizeSwitchersGroup = TilesizeSwitchers(self.mainWindow, self.mainWindow.PROXY.setActualTilesize)
         self.layerSwitchersGroup = LayerSwitchers(self.mainWindow, self.mainWindow.PROXY.setActiveLayer)
+        self.layerVisibilityGroup = LayersVisibilitySwitchers(self.mainWindow, self.mainWindow.PROXY.switchDrawScene)
         self.drawGridAction = DrawGridAction(self.mainWindow)
         self.drawPassAction = DrawPassAction(self.mainWindow)
         self.viewScaler = ViewScaler(self.mainWindow)
@@ -58,6 +59,8 @@ class BarsManager:
         self.menuScene.addSeparator()
         self.menuScene.addActions(self.layerSwitchersGroup.actions())
         self.menuScene.addSeparator()
+        self.menuScene.addActions(self.layerVisibilityGroup.actions())
+        self.menuScene.addSeparator()
         self.menuScene.addAction(self.drawGridAction)
         self.menuScene.addAction(self.drawPassAction)
         #=============================================
@@ -81,6 +84,8 @@ class BarsManager:
         self.mainWindow.TOOLBAR.addActions(self.tilesizeSwitchersGroup.actions())
         self.mainWindow.TOOLBAR.addSeparator()
         self.mainWindow.TOOLBAR.addActions(self.layerSwitchersGroup.actions())
+        self.mainWindow.TOOLBAR.addSeparator()
+        self.mainWindow.TOOLBAR.addActions(self.layerVisibilityGroup.actions())
         self.mainWindow.TOOLBAR.addSeparator()
         self.mainWindow.TOOLBAR.addAction(self.drawGridAction)
         self.mainWindow.TOOLBAR.addAction(self.drawPassAction)

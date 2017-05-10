@@ -15,14 +15,29 @@ class ProxyBuffer:
         '''
         self.MAIN = main			# Ссылка на главное окно
         self.CONFIG = main.CONFIG	# Ссылка на объект конфигураций
-        self.SCALE = 3				# Текущий уровень масштабирования сцены
-        self.TILE = []              # Текущий активный тайл. По умолчанию - пустой массив
-        self.SIZE = int(self.CONFIG['EDITOR OPTIONS']['Tilesize'])# Текущий размер тайла
+        # Уровень масштабирования сцены. Может принимать значения от 0 до 4 включительно. Масштаб 1:1 соответствует
+        # значению 3 (по умолчанию)
+        self.SCALE = 3
+        # Текущий активный тайл. Представляет из себя список тайлов, который может содержать от 1 до 9 элементов
+        self.TILE = []
+        # Текущий размер тайла. По умолчанию присваивается значение из файла конфигураций
+        self.SIZE = int(self.CONFIG['EDITOR OPTIONS']['Tilesize'])
+        # Минимальный размер тайла. Определяется как 1/3 от максимального размера из файла конфигураций
         self.BASESIZE = self.SIZE//3# Фиксируем минимальный размер тайла
-        self.LAYER = 1.0            # Текущий активный слой
-        self.VIEW_MODE = 'Simple'   # Триггер режимов работы со сценой
-        self.DRAW_GRID = True       # Триггер отрисовки вспомогательной сетки
-        self.DRAW_BACK = True       # Триггер отрисовки заднего фона сцены
+        # Значение текущего активного слоя. Может принимать только значения типа float. Используется для корректной
+        # отрисовки сцены - каждый добавляемый элемент будет иметь высоту отрисовки, равную этому значению
+        self.LAYER = 1.0
+        # Триггер отрисовки сцены. Может иметь три положения: Whole, Active, Transparent. Whole - все слои сцены
+        # отрисовываются на отображении. Active - отрисовывается только активный слой, остальные скрыты, Transparent -
+        # четко отрисовывается только активный слой, остальные - полупрозрачные
+        self.DRAW_MODE = 'Whole'
+        # Тригеер режимов работы со сценой. Значение Simple означает стандартный режим редактирования. Passability -
+        # сцена отображает карту проходимости. Events - сцена находится в режиме редактирования событий
+        self.VIEW_MODE = 'Simple'
+        # Триггер отрисовки вспомогательной сетки
+        self.DRAW_GRID = True
+        # Триггер отрисовки заднего фона сцены
+        self.DRAW_BACK = True
 #========== Методы установки атрибутов ==========
     def setActiveTile(self, pixArray):
         # Метод установки текущего активного тайла
@@ -64,6 +79,12 @@ class ProxyBuffer:
         # Метод установки режима работы со сценой
         if value in self.VIEW_MODES:    self.VIEW_MODE = value
         else:   raise ValueError ('Illegal Scene View Mode value! Must be {}, but {} given.'.format(self.VIEW_MODES, value))
+    def switchDrawScene(self, value):
+        # Метод смены режима отображения слоев сцены
+        if value == 'W':    self.DRAW_MODE = 'Whole'
+        elif value == 'A':  self.DRAW_MODE = 'Active'
+        elif value == 'T':  self.DRAW_MODE = 'Transparent'
+        self.MAIN.SCENE_MANAGER.scene().activeLayerChanged()
     def switchViewMode(self):
         # Метод автоматического переключения режимов работы со сценой
         if self.VIEW_MODE == 'Passability': self.setViewMode('Simple')

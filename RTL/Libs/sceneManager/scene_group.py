@@ -21,7 +21,11 @@ class TileGroup:
         # Метод делает все элементы слоя непрозрачными
         for tile in self.layer.values(): tile.setOpacity(1.0)
     def becomeTransparent(self):
+        # Метод делает все элементы слоя полупрозрачными
         for tile in self.layer.values(): tile.setOpacity(0.2 + self.zValue / 10)
+    def becomeInvisible(self):
+        # Метод делает все элементы слоя невидимыми
+        for tile in self.layer.values(): tile.setOpacity(0.0)
 # Переопределяем некоторые методы, чтобы сделать объект итерируемым
     def __len__(self):
         # Перегруженный метод определения размера набора
