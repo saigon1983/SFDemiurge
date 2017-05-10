@@ -31,7 +31,7 @@ class SetTilesizeAction(AbstractAction):
         icon.addPixmap(QPixmap("RTL\\Images\\Icons\\tile{}A.png".format(value)), QIcon.Normal, QIcon.On)	# Иконка в активном состоянии
         self.setIcon(icon)
         # Устанавливаем текст для отображения в главном меню приложения
-        self.setText('Размер тайла: {0} на {0}'.format(mainWindow.PROXY.SIZE // (4- value)))
+        self.setText('Размер тайла: {0} на {0}'.format(mainWindow.PROXY.BASESIZE * int(value)))
         # Делаем кнопку нажимаемой
         self.setCheckable(True)
 class TilesizeSwitchers(QActionGroup):
