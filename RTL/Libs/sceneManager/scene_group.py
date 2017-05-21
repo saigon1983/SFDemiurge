@@ -6,6 +6,9 @@ class TileGroup:
         self.layer      = {}    # Словарь тайлов
         self.counter    = 0     # Счеткик текущего метсоположения для операций итерации
         self.zValue     = zValue# Высота списка, должна быть одинаковой у всех элементов в списке
+    def clear(self):
+        # Метод очистки словаря
+        self.layer.clear()
     def append(self, *tiles):
         # Метод добавления тайла или списка тайлов в набор
         for tile in tiles:

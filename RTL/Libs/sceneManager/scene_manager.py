@@ -138,20 +138,20 @@ class SceneManager(QGraphicsView):
     def rememberScene(self):
         # Метод запоминает текущее состояние сцены и добавляет его в контейнер futureScenes. Поскольку в этот контейнер
         # попадают исключительно те сцены, которые были в контейнере pastScenes, нет необходимости задавать ему размер
-        self.futureScenes.append(self.scene().duplicate())   # Добавляем текущую сцену в контейнер
+        self.futureScenes.append(self.scene().getTilesData())   # Добавляем текущую сцену в контейнер
         self.mainWindow.BARS.updateUndoRedo()
     def setPreviousScene(self):
         # Метод установки предыдущей сцены, вместо текущей при использовании UNDO
         if self.pastScenes and self.PROXY.VIEW_MODE == 'Simple':    # Запускаем только, если контейнер предыдущих состояний не пустой
             self.rememberScene()                                    # Сохраняем текущую сцену в будущие сцены
-            self.setScene(self.pastScenes.pop())                    # Вытаскиваем последнее состояние из контейнера и устанавливаем его
+            self.scene().setupTiles(self.pastScenes.pop())          # Вытаскиваем последнее состояние из контейнера и устанавливаем его
             self.scene().unsaved()                                  # Уведомляем сцену, что она не сохранена
             self.mainWindow.BARS.updateUndoRedo()
     def setFutureScene(self):
         # Метод установки будущей сцены, вместо текущей при использовании REDO
         if self.futureScenes and self.PROXY.VIEW_MODE == 'Simple':  # Запускаем только, если контейнер будущих состояний не пустой
-            self.pastScenes.append(self.scene().duplicate())        # Сохраняем текущую сцену в прошлые сцены
-            self.setScene(self.futureScenes.pop())                  # Вытаскиваем последнее состояние из контейнера и устанавливаем его
+            self.pastScenes.append(self.scene().getTilesData())        # Сохраняем текущую сцену в прошлые сцены
+            self.scene().setupTiles(self.futureScenes.pop())        # Вытаскиваем последнее состояние из контейнера и устанавливаем его
             self.scene().unsaved()                                  # Уведомляем сцену, что она не сохранена
             self.mainWindow.BARS.updateUndoRedo()
 #==========Методы реакции на пользоватльский ввод (движения/нажатия мыши/клавиатуры)==========
@@ -172,7 +172,7 @@ class SceneManager(QGraphicsView):
         coords = self.mapToScene(event.x(),event.y())   # Получаем координаты текущего местоположения курсора мыши
         if self.scene() and self.mouseInScene(coords):  # Если курсор находится в допустимых координатах и вообще есть сцена
             # Обработка нажатий кнопок мыши для состояния редактирвоания сцены Simple
-            self.sceneBuffer = self.scene().duplicate() # Запоминаем текущее состояние в буфер
+            self.sceneBuffer = self.scene().getTilesData() # Запоминаем текущее состояние в буфер
             if self.PROXY.VIEW_MODE == 'Simple':
                 # Обрабатываем нажатие левой кнопки. По сути, передаем управление методу установки тайла и решения принимает он
                 if self.mouseLeftPressed:       self.placeTile(coords)

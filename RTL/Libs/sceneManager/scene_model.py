@@ -7,10 +7,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from RTL.Libs.sceneManager.scene_tile import Tile
 from RTL.Libs.sceneManager.scene_group import TileGroup
-from RTL.Libs.helpFunctions.adjust_to_tilesize import adjustToTilesize
 from RTL.Libs.sceneManager.scene_cursor import FrameCursor
-
-verticalLine = QPainter()
 
 class SceneModel(QGraphicsScene):
     PASSABILITY = ('Empty','Solid','Hover')	# Список возможных значений проходимости клетки
@@ -68,6 +65,9 @@ class SceneModel(QGraphicsScene):
         if not self.CURSOR.scene(): self.addItem(self.CURSOR)
     def setupTiles(self, tilelist):
         # Метод размещения тайлов из списка tilelist по сцене
+        for layer in self.LAYERS: layer.clear()
+        for tile in self.items():
+            if type(tile) != FrameCursor: self.removeItem(tile)
         for tileData in tilelist:
             tile = Tile.fromTileData(tileData)
             self.LAYERS[int(tile.zValue())].append(tile)
@@ -203,7 +203,13 @@ class SceneModel(QGraphicsScene):
         self.sceneFile = self.mainWindow.getCurrentPath() + "\\Scenes\\" + self.IDstr + '.sdf'
         with open(self.sceneFile, 'wb') as sceneFile:
             pickle.dump(self.getSceneData(), sceneFile)
-        self.saved =True
+        self.saved = True
+    def getTilesData(self):
+        # Метод собирает данные о всех расположенных на сцене тайлах
+        array = []
+        for tile in self.items():
+            if type(tile) != FrameCursor: array.append(tile.getTileData())
+        return array
     def getSceneData(self):
         # Метод пакует данные сцены в словарь и возвращает его
         self.sceneData['ID'] = self.ID
@@ -212,9 +218,7 @@ class SceneModel(QGraphicsScene):
         self.sceneData['Width'] = self.tiles_in_row
         self.sceneData['Height'] = self.tiles_in_col
         self.sceneData['MainTileset'] = self.tileset
-        self.sceneData['Tiles'] = []
-        for item  in self.items():
-            if type(item) != FrameCursor: self.sceneData['Tiles'].append(item.getTileData())
+        self.sceneData['Tiles'] = self.getTilesData()
         self.sceneData['Triggers'] = {}
         # TODO Далее должны следовать различные триггеры, но они пока отсутствуют, т.к. все были вынесены в прокси-буфер
         self.sceneData['WalkMap'] = self.walkMap
